@@ -9,8 +9,6 @@
 #include "timer.h"
 
 
-#include <chrono>
-
 int main(int argc, char *argv[]) {
     if (argc < 4) {
         std::cerr << "Usage: " << argv[0] << " <ballc_file> <meta_file> <range>\n";
@@ -70,6 +68,9 @@ int main(int argc, char *argv[]) {
         for(auto record:records){
             std::cout << record.chrom << "\t" << record.pos << "\t";
             auto meta_ptr = meta_map.find(std::pair<std::string, int>(record.chrom, record.pos));
+            if(meta_ptr==meta_map.end()){
+                throw std::runtime_error("Ballc file and meta file do not match!");
+            }
             std::cout << meta_ptr->second.first << "\t" << meta_ptr->second.second << "\t";
             std::cout << record.mc << "\t" << record.cov << "\t1\n";
         }

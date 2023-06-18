@@ -9,7 +9,7 @@
 
 int main(int argc, char* argv[]){
     BAllcIndex index(argv[1]);
-    index.BuildIndex();
+    // index.BuildIndex();
     // auto records = index.QueryLines(std::string(argv[2]));
     auto records = index.QueryLines(argv[2]);
     for(auto it: records){

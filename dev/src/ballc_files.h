@@ -10,6 +10,8 @@ struct RefRecord {
 
 constexpr int BALLC_VERSION = 0;
 constexpr int BALLC_VERSION_MINOR = 1;
+constexpr char BALLC_MAGIC[] = "BALLC\1";
+constexpr char BALLC_INDEX_MAGIC[] = "BALLCIDX\1";
 
 struct BAllcHeader {
     char magic[6];
@@ -64,24 +66,17 @@ struct IndexHeader{
 
 
 
-// struct IndexKey {
-//     int ref_id;
-//     int bin;
-
-//     bool operator<(const IndexKey &other) const {
-//         if (ref_id == other.ref_id) {
-//             return bin < other.bin;
-//         }
-//         return ref_id < other.ref_id;
-//     }
-// };
 
 struct IndexKey {
-    int ref_id;
-    int bin;
+    uint16_t ref_id;
+    uint32_t bin;
 
     bool operator<(const IndexKey &other) const {
         return ref_id == other.ref_id && bin < other.bin;
+        // if (ref_id == other.ref_id) {
+        //     return bin < other.bin;
+        // }
+        // return ref_id < other.ref_id;
     }
     bool operator==(const IndexKey &other) const{
         return ref_id == other.ref_id && bin == other.bin;
@@ -89,30 +84,21 @@ struct IndexKey {
 };
 
 
-// struct IndexValues{
-//     int n_pairs;
-//     std::vector<std::pair<int64_t, int64_t>> offset_pairs;
-// };
 
 struct IndexEntry{
     IndexKey key;
-    int n_chunks;
-    std::vector<std::pair<int64_t, int64_t>> chunks;
+    // IndexChunk chunk;
+    uint64_t chunk_start;
+    uint64_t chunk_end;
     bool operator<(const IndexEntry &other) const {
-        // return key.ref_id == other.key.ref_id && key.bin < other.key.bin;
-        return key.bin < other.key.bin;
+        return this->key < other.key;
     } 
 };
 
-// struct BAllcIndexFile{
-//     IndexHeader header;
-//     uint64_t n_indexes;
-//     std::vector<std::pair<IndexKey, IndexValues>> index;
-// };
 
 struct BAllcIndexFile{
     IndexHeader header;
-    uint64_t n_entries;
+    uint32_t n_entries;
     std::vector<IndexEntry> index;
 };
 

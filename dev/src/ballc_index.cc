@@ -25,18 +25,13 @@ BAllcIndex::BAllcIndex(const char* ballc_path):ballc(BAllc(ballc_path)){
 
     // std::cout << "Time taken by init ballc in ballc_index" << timer.elapsed() << "s\n";timer.reset();
 
-    // std::cout << "here" << std::endl;
     InitHeader();
-    // std::cout << "here" << std::endl;
     // std::cout << "Time taken by init header in ballc_index" << timer.elapsed() << "s\n";timer.reset();
 
-    BuildRefDict();
-    // std::cout << this->header.n_refs << std::endl;
-    // std::cout << "Time taken by BuildRefDict in ballc_index" << timer.elapsed() << "s\n";timer.reset();
 }
 
 void BAllcIndex::InitHeader(){
-    std::memcpy(this->header.magic,"BALLCIDX",8);
+    std::memcpy(this->header.magic,BALLC_INDEX_MAGIC,sizeof(BALLC_INDEX_MAGIC));
     this->header.n_refs = this->ballc.header.n_refs;
     this->header.refs = this->ballc.header.refs;
 }
@@ -59,12 +54,13 @@ int BAllcIndex::RegToBin(int beg, int end){
 void BAllcIndex::BuildIndex(){
 
     MCRecord record;
-    int64_t offset;
+    uint64_t offset;
 
     while ((offset = ballc.Tell()) >= 0 && ballc.ReadMcRecord(record)) {
         IndexKey key = {record.ref_id, RegToBin(record.pos, record.pos + 1)};
         // if bin does not exist in index, initialize it
-        this->working_index.AddChunk(key, {offset, offset});
+        // this->working_index.AddChunk(key, {offset, offset});
+        this->working_index.AddChunk(key, offset, offset);
         // if(this->working_index[key].empty()){
         //     this->working_index[key] = {{offset, offset}};
         // } 
@@ -73,6 +69,15 @@ void BAllcIndex::BuildIndex(){
         //     this->working_index[key].back().second = offset;
         // }
     }
+
+    // for(auto x: this->working_index.ref_id_book){
+    //             std::cout << "ha" << x.first << " | " << x.second.first  << " | " << x.second.second <<"\n";
+    //         }
+
+    // for(auto x: this->working_index.index_vec){
+    //     std::cout << "key: " << x.key.ref_id << " : " << x.key.bin << " | " << x.chunks.size() << "\n";
+    // }
+    // std::cout << "index built"<< std::endl;
     // WorkingIndexToFileIndex();//TODO
 }
 
@@ -99,8 +104,8 @@ void BAllcIndex::BuildIndex(){
 
 void BAllcIndex::WriteIndex(bool override){//TODO
     BGZF* index_file = bgzf_open(this->index_path.c_str(), "w9");
+    bgzf_write(index_file, &(this->header.magic), sizeof(this->header.magic));
     this->working_index.WriteIndex(index_file);
-    // bgzf_write(index_file, &(this->header.magic), sizeof(this->header.magic));
     // bgzf_write(index_file, &(this->header.n_refs), sizeof(this->header.n_refs));
     // for(const auto& it : this->header.refs){
     //     bgzf_write(index_file, &it.l_name, sizeof(it.l_name));
@@ -157,6 +162,11 @@ int BAllcIndex::ReadIndex(){//TODO
     // // delete tmp;
     // bgzf_close(index_file);
     // FileIndexToWorkingIndex();
+    // for(auto x: this->working_index.index_vec){
+    //     std::cout << "key: " << x.key.ref_id << " : " << x.key.bin << " | " << x.chunks.size() << "\n";
+    // }
+    // std::cout << "index read"<< std::endl;
+
 }
 
 
@@ -186,14 +196,15 @@ void BAllcIndex::ParseGenomeRange(const std::string& range, std::string& chrom, 
     std::cout<<chrom<<" "<<start<<" "<<end<<std::endl;
 }
 
-void BAllcIndex::BuildRefDict(){
-    // HashTable* ref_dict = new HashTable();
-    for(unsigned int i = 0; i<header.n_refs; i++){
-        this->ref_dict.insert(this->header.refs[i].ref_name, i);
-    }
-    // this->ref_dict = ref_dict;
-    // return ref_dict;
-}
+// void BAllcIndex::BuildRefDict(){
+    // // HashTable* ref_dict = new HashTable();
+    // for(unsigned int i = 0; i<header.n_refs; i++){
+    //     this->ref_dict.insert(this->header.refs[i].ref_name, i);
+    // }
+    // // this->ref_dict = ref_dict;
+    // // return ref_dict;
+// }
+
 std::vector<MCRecord> BAllcIndex::QueryMcRecords(const std::string& range){
     Timer timer;
     std::string chrom;
@@ -201,7 +212,7 @@ std::vector<MCRecord> BAllcIndex::QueryMcRecords(const std::string& range){
     ParseGenomeRange(range, chrom, start, end);
     end++; //to include end position if it's in the file, ie return [start, end] instead of [start, end). this matches the behavior of tabix 
 
-    int ref_id = this->ref_dict.get(chrom);
+    int ref_id = this->ballc.ref_dict.get(chrom);
     std::cout << "ref_id " << ref_id << std::endl;
 
     IndexKey start_key = {ref_id, RegToBin(start, start + 1)};
@@ -224,17 +235,19 @@ std::vector<MCRecord> BAllcIndex::QueryMcRecords(const std::string& range){
         if(iter->key.ref_id!=ref_id){
             continue;
         }
-        for(auto chunk: iter->chunks){
-            if (this->ballc.Seek(chunk.first) < 0) {
+        // for(auto chunk: iter->chunks){
+            // if (this->ballc.Seek(chunk.first) < 0) {
+            if (this->ballc.Seek(iter->chunk_start) < 0) {
                 throw std::runtime_error("Error seeking to position in file");
             }
             MCRecord record;
-            while (this->ballc.Tell() <= chunk.second && ballc.ReadMcRecord(record)) {
+            // while (this->ballc.Tell() <= chunk.second && ballc.ReadMcRecord(record)) {
+            while (this->ballc.Tell() <= iter->chunk_end && ballc.ReadMcRecord(record)) {
                 if(record.ref_id == ref_id && record.pos >= start && record.pos < end){
                     results.push_back(record);
                 }
             }
-        }
+        // }
     }
 
     std::cout << "\t\tTime taken by ballcindex get records: "<< timer.elapsed() << " s" << std::endl;timer.reset();

@@ -27,7 +27,7 @@ BAllc::BAllc(const char* ballc_path, bool sc, std::string assembly_text, std::st
     this->writing_mode = true;
 
     BAllcHeader &header = this->header;
-    std::memcpy(header.magic,"BALLC\1",6);
+    std::memcpy(header.magic,BALLC_MAGIC,sizeof(BALLC_MAGIC));
     header.version = BALLC_VERSION;
     header.version_minor = BALLC_VERSION_MINOR;
     header.sc = uint8_t(sc);

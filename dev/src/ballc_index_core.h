@@ -21,16 +21,17 @@ class BallcIndex;
 class IndexCore{
 public:
 
-    void AddChunk(IndexKey key, std::pair<int64_t, int64_t> chunk);
+    // void AddChunk(IndexKey key, IndexChunk chunk);
+    void AddChunk(IndexKey key, uint64_t chunk_start, uint64_t chunk_end);
 
     IndexVec::iterator UpperBound(const IndexKey& key);
 
     IndexVec::iterator LowerBound(const IndexKey& key);
 
-private:
+// private:
     IndexVec index_vec;
     std::unordered_map<IndexKey, size_t, IndexKeyHash> pos_book;
-    std::unordered_map<int, std::pair<size_t,size_t>> ref_id_book;
+    std::unordered_map<uint16_t, std::pair<size_t,size_t>> ref_id_book;
 
 public://TODO
     void WriteIndex(BGZF* bgzf);
