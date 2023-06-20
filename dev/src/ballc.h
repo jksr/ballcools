@@ -7,7 +7,7 @@
 #include <htslib/bgzf.h>
 #include "ballc_files.h"
 
-class BAllc:protected BAllcFile{
+class BAllc:public BAllcFile{
 friend class BAllcIndex;
 public:
     BAllc(const char* ballc_path, const char mode='r');
