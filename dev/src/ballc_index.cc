@@ -204,6 +204,28 @@ void BAllcIndex::ParseGenomeRange(const std::string& range, std::string& chrom, 
     // // this->ref_dict = ref_dict;
     // // return ref_dict;
 // }
+std::vector<MCRecord> BAllcIndex::IterQueryMcRecords(const std::string& range){
+// MCRecordIterator BAllcIndex::IterQueryMcRecords(const std::string& range){
+    std::string chrom;
+    int start, end;
+    ParseGenomeRange(range, chrom, start, end);
+    end++; //to include end position if it's in the file, ie return [start, end] instead of [start, end). this matches the behavior of tabix 
+
+    int ref_id = this->ballc.ref_dict.get(chrom);
+    IndexKey start_key = {ref_id, RegToBin(start, start + 1)};
+    IndexKey end_key = {ref_id, RegToBin(end, end + 1)};
+    auto start_iter = this->working_index.LowerBound(start_key);
+    auto end_iter = this->working_index.UpperBound(end_key);
+
+    MCRecordIterator mciter(this->ballc, start_iter, end_iter, ref_id, start, end);
+
+    std::vector<MCRecord> results;
+    while(mciter.HasNext()){
+        results.push_back(mciter.Next());
+    }
+    return results;
+}
+
 
 std::vector<MCRecord> BAllcIndex::QueryMcRecords(const std::string& range){
     Timer timer;
@@ -258,6 +280,15 @@ std::vector<MCRecord> BAllcIndex::QueryMcRecords(const std::string& range){
 
 std::vector<std::string> BAllcIndex::QueryLines(const std::string& range){
     auto records = QueryMcRecords(range);
+    std::vector<std::string> results;
+    for(auto record: records){
+        results.push_back(this->ballc.McRecordToLine(record));
+    }
+    return results;
+}
+
+std::vector<std::string> BAllcIndex::IterQueryLines(const std::string& range){
+    auto records = IterQueryMcRecords(range);
     std::vector<std::string> results;
     for(auto record: records){
         results.push_back(this->ballc.McRecordToLine(record));

@@ -51,6 +51,13 @@ void QueryBallc(const char* ballc_path, const char* range){
     }
 }
 
+void IterQueryBallc(const char* ballc_path, const char* range){
+    BAllcIndex index(ballc_path);
+    auto records = index.IterQueryLines(range);
+    for(auto it: records){
+        std::cout << it;
+    }
+}
 
 void QueryBallcWithMeta(const char* ballc_path, const char* cmeta_path, const char* range, 
                         bool warn_mismatch=true, bool err_mismatch=true, bool skip_mismatch=true){
@@ -117,10 +124,10 @@ void ViewBallc(const char* ballc_path, bool header, bool refs, bool records, con
     }
     if(refs){
         std::cout << "References: ";
-        for(auto ref: ballc.header.refs){
-            std::cout << ref.ref_name << "\t";
+        for(int i=0; i<ballc.header.refs.size()-1; i++){
+            std::cout << ballc.header.refs[i].ref_name << ",";
         }
-        std::cout << "\n";
+        std::cout << ballc.header.refs.back().ref_name << "\n";
     }
     if(records){
         //TODO

@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
     // Adding subcommands
     CLI::App* cmd_view = app.add_subcommand("view", "View data stored in a BAllC file.");
     CLI::App* cmd_index = app.add_subcommand("index", "Index a BAllC file.");
-    CLI::App* cmd_a2ballc = app.add_subcommand("a2b,allc-to-ballc", "Convert an AllC file to a BAllc file.");
+    CLI::App* cmd_a2ballc = app.add_subcommand("a2b", "Convert an AllC file to a BAllc file.");
     CLI::App* cmd_meta = app.add_subcommand("meta", "Extract and index C from a genome sequence file (fasta) and store in a CMeta file (bed format).");
     CLI::App* cmd_query = app.add_subcommand("query", "Query info from a BAllC file");
 
@@ -18,14 +18,16 @@ int main(int argc, char **argv) {
     std::string allc_path, ballc_path, chrom_size_path, assembly, header_text;
     std::string fasta_path, cmeta_path;
     std::string grange;
-    bool sc, q_warn, q_err, q_skip;
+    bool sc=true;
+    bool q_warn=false, q_err=false, q_skip=false;
+    bool header=false, refs=false, records=false;
 
 
 
     cmd_a2ballc->add_option("allcpath", allc_path, "AllC file path")->required();
     cmd_a2ballc->add_option("ballcpath", ballc_path, "BAllC file path")->required();
     cmd_a2ballc->add_option("chrompath", chrom_size_path, "Path to the chromosome size file or the .fai file")->required();
-    cmd_a2ballc->add_option("-s,--sc", sc, "Whether or not to convernt the AllC file to the single-cell (sc) BAllC format. \
+    cmd_a2ballc->add_flag("-s,--sc", sc, "Whether or not to convernt the AllC file to the single-cell (sc) BAllC format. \
 uint8 data type is used to store methylation info in sc BAllC format, while uint16 is used in non-sc format, \
 resulting in smaller disk usage for sc BAllC format. \
 However, converting a non-sc AllC file to a sc BAllC file format may result in broken data in the BAllC file. \
@@ -44,22 +46,25 @@ Default: true")->default_val(true);
     cmd_query->add_option("ballcpath", ballc_path, "BAllC file path")->required();
     cmd_query->add_option("genomerange", grange, "Genome range of interests. Supported formats are chrX, chrX:\
     chrX:XXX-XXX, chrX:-XXX, chrX:XXX-")->required();
-    cmd_query->add_option("-c,--cmeta_path", cmeta_path, "CMeta path. If provided, strandness and C-context will be shown as well"
-                            )->default_val("");
-    cmd_query->add_option("-w,--warn_mismatch", q_warn, "Warning message will be displayed if mismatches detected between the BAllC file and the CMeta.\
+    cmd_query->add_flag("-w,--warn_mismatch", q_warn, "Warning message will be displayed if mismatches detected between the BAllC file and the CMeta.\
 The program WILL NOT halt. Default: false."
-                            )->default_val(false);
-    cmd_query->add_option("-e,--err_mismatch", q_err, "Runtime error will be caused if mismatches detected between the BAllC file and the CMeta.\
+                            );
+    cmd_query->add_flag("-e,--err_mismatch", q_err, "Runtime error will be caused if mismatches detected between the BAllC file and the CMeta.\
 The program WILL halt. Default: false."
-                            )->default_val(false);
-    cmd_query->add_option("-s,--skip_mismatch", q_skip, "Skip displaying the C record which has mismatch between the BAllC file and the CMeta.\
+                            );
+    cmd_query->add_flag("-s,--skip_mismatch", q_skip, "Skip displaying the C record which has mismatch between the BAllC file and the CMeta.\
 If not skip, the strandness and the C-context of the C will be displayed as \"?\tC??\". Default: truee."
-                            )->default_val(true);
+                            );
+    bool test_iter = false;//////////
+    cmd_query->add_flag("-i", test_iter, "test iter");//////////
 
 
-    cmd_view->add_option("-s,--skip_mismatch", q_skip, "Skip displaying the C record which has mismatch between the BAllC file and the CMeta.\
-If not skip, the strandness and the C-context of the C will be displayed as \"?\tC??\". Default: truee."
-                            )->default_val(true);
+    cmd_view->add_option("ballcpath", ballc_path, "BAllC file path")->required();
+    cmd_view->add_flag("-d,--header", header, "View header")->default_val(false);
+    cmd_view->add_flag("-f,--refs", refs, "View the references")->default_val(false);
+    cmd_view->add_flag("-r,--records", records, "View the records")->default_val(false);
+    cmd_view->add_option("-c,--cmeta_path", cmeta_path, "CMeta path. If provided, strandness and C-context will be shown as well"
+                            )->default_val("");
 
     // Define options for other subcommands here as needed.
     try {
@@ -75,7 +80,7 @@ If not skip, the strandness and the C-context of the C will be displayed as \"?\
 
     // Call the appropriate function based on the subcommand chosen.
     if(*cmd_view) {
-        // cmd_viewaram1, a_param2);
+        ViewBallc(ballc_path.c_str(), header, refs, records, cmeta_path.c_str());
     }
     else if(*cmd_a2ballc) {
         AllcToBallc(allc_path.c_str(), ballc_path.c_str(), chrom_size_path, assembly, header_text, sc);
@@ -88,12 +93,16 @@ If not skip, the strandness and the C-context of the C will be displayed as \"?\
     }
     else if(*cmd_query) {
         if(cmeta_path==""){
+            if(test_iter){
+            IterQueryBallc(ballc_path.c_str(), grange.c_str());
+
+            }
+            else{
             QueryBallc(ballc_path.c_str(), grange.c_str());
+
+            }
         }
         else{
-            std::cout << q_warn << "\n";
-            std::cout << q_err << "\n";
-            std::cout << q_skip << "\n";
             QueryBallcWithMeta(ballc_path.c_str(), cmeta_path.c_str(), grange.c_str(), q_warn, q_err, q_skip);
         }
     }

@@ -8,6 +8,7 @@
 #include "ballc_files.h"
 #include "ballc_index_core.h"
 
+#include "ballc_iterator.h"
 
 constexpr int GRANGE_END_MAX = (1 << 26) - 1;
 
@@ -20,6 +21,9 @@ public:
     void WriteIndex(bool override=false);
     // std::vector<std::string> Query(const std::string& range);
     std::vector<MCRecord> QueryMcRecords(const std::string& range);
+    // MCRecordIterator IterQueryMcRecords(const std::string& range);
+    std::vector<MCRecord> IterQueryMcRecords(const std::string& range);
+    std::vector<std::string> IterQueryLines(const std::string& range);
     std::vector<std::string> QueryLines(const std::string& range);
     std::vector<MCRecord2> QueryMcRecord2s(const std::string& range);
     // void QueryMcRecord2s(const std::string& range, std::vector<MCRecord2>& results);

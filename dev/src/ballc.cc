@@ -6,8 +6,10 @@
 
 #include "utils.h"
 
+BAllc::BAllc(const BAllc& ballc):BAllc(ballc.ballc_path.c_str(),'r'){
+}
 
-BAllc::BAllc(const char* ballc_path, const char mode){
+BAllc::BAllc(const char* ballc_path, const char mode):ballc_path(ballc_path){
     if(mode!='r'){
         throw std::runtime_error("Inappropriate mode1");
     }
@@ -19,7 +21,8 @@ BAllc::BAllc(const char* ballc_path, const char mode){
 }
 
 
-BAllc::BAllc(const char* ballc_path, bool sc, std::string assembly_text, std::string header_text, std::string chrom_size_path, const char mode){
+BAllc::BAllc(const char* ballc_path, bool sc, std::string assembly_text, std::string header_text, 
+             std::string chrom_size_path, const char mode):ballc_path(ballc_path){
     if(mode!='w'){
         throw std::runtime_error("Inappropriate mode2");
     }

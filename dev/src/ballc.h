@@ -10,6 +10,7 @@
 class BAllc:public BAllcFile{
 friend class BAllcIndex;
 public:
+    BAllc(const BAllc& ballc);
     BAllc(const char* ballc_path, const char mode='r');
     BAllc(const char* ballc_path, bool sc, std::string assembly_text, std::string header_text, std::string chrom_size_path, const char mode='w');
     ~BAllc();
@@ -41,6 +42,7 @@ private://TODO
     FuncWriteRecord func_write_record;
     FuncReadRecord func_read_record;
     HashTable ref_dict;
+    const std::string ballc_path;
 };
 
 #endif//_BALLC_H_
