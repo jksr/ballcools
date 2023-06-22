@@ -14,6 +14,7 @@
 #include "meta_indexing.h"
 #include "ballc_index.h"
 #include "utils.h"
+#include "context_matcher.h"
 
 void AllcToBallc(const char* allc_path, const char* ballc_path, std::string chrom_size_path, 
                 std::string assembly_text, std::string header_text="", bool sc=true){
@@ -51,11 +52,12 @@ void QueryBallc(const char* ballc_path, const char* range){
     }
 }
 
-void IterQueryBallc(const char* ballc_path, const char* range){
+void QueryBallc_Iter(const char* ballc_path, const char* range){
     BAllcIndex index(ballc_path);
-    auto records = index.IterQueryLines(range);
-    for(auto it: records){
-        std::cout << it;
+    auto mciter = index.QueryMcRecords_Iter(range);
+    MCRecord rec;
+    while(mciter.HasNext()){
+        std::cout << mciter.NextLine();
     }
 }
 
@@ -113,6 +115,64 @@ void QueryBallcWithMeta(const char* ballc_path, const char* cmeta_path, const ch
             }
         }
     }
+}
+inline void OutputMatched(std::string chrom, uint32_t pos, std::string strand, 
+                            std::string context, uint16_t mc, uint16_t cov, 
+                            const CContextMatcher& matcher
+                         ){
+    if(matcher.Matches(context)){
+        std::cout << chrom << "\t" << pos << "\t" << strand << "\t" << context << "\t" << mc << "\t" << cov << "\t1\n";
+    }
+}
+
+void QueryBallcWithMeta_Iter(const char* ballc_path, const char* cmeta_path, const char* range, 
+                        bool warn_mismatch=true, bool err_mismatch=true, bool skip_mismatch=true,
+                        std::string c_context="*"){
+    BAllcIndex index(ballc_path);
+    MCRecordIterator mciter = index.QueryMcRecords_Iter(range);
+    CContextMatcher context_matcher(c_context);
+
+    htsFile *fp = hts_open(cmeta_path, "r");
+    tbx_t *tbx = tbx_index_load(cmeta_path);
+    kstring_t str = {0, 0, nullptr};
+    
+    // std::string strand, mc_ctxt;
+    while(mciter.HasNext()){
+        MCRecord2 record2 = mciter.NextMCRecord2();
+        std::string range = record2.chrom+":"+std::to_string(record2.pos)+"-"+std::to_string(record2.pos);
+        hts_itr_t *itr = tbx_itr_querys(tbx, range.c_str());
+        if (itr == NULL) {
+            // throw std::runtime_error("Failed to query region.");//TODO
+
+            if(warn_mismatch){
+                std::cerr << "Mismatch detected at " << record2.chrom << "\t" << record2.pos << 
+                " between ballc file and meta file.\n";
+            }
+            if(err_mismatch){
+                throw std::runtime_error("Ballc file and meta file do not match!");
+            }
+            if(!skip_mismatch){
+                OutputMatched(record2.chrom, record2.pos, "?", "C??", record2.mc, record2.cov, context_matcher);
+                // std::cout << record2.chrom << "\t" << record2.pos << "\t"
+                //     << "?" << "\t" << "C??" << "\t"
+                //     << record2.mc << "\t" << record2.cov << "\t1\n";                    
+            }            
+        }
+        else{
+            tbx_itr_next(fp, tbx, itr, &str);
+            auto elems = utils::split(str.s, '\t');
+            tbx_itr_destroy(itr);
+            OutputMatched(record2.chrom, record2.pos, elems[2], elems[3], record2.mc, record2.cov, context_matcher);
+
+            // std::cout << record2.chrom << "\t" << record2.pos << "\t"
+            //     << elems[2] << "\t" << elems[3] << "\t"
+            //     << record2.mc << "\t" << record2.cov << "\t1\n";
+        }
+    }
+
+    free(str.s);
+    tbx_destroy(tbx);
+    hts_close(fp);
 }
 
 void ViewBallc(const char* ballc_path, bool header, bool refs, bool records, const char* cmeta_path=""){

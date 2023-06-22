@@ -25,8 +25,9 @@ public:
     void AddChunk(IndexKey key, uint64_t chunk_start, uint64_t chunk_end);
 
     IndexVec::iterator UpperBound(const IndexKey& key);
-
     IndexVec::iterator LowerBound(const IndexKey& key);
+    IndexVec::iterator Begin();
+    IndexVec::iterator End();
 
 // private:
     IndexVec index_vec;

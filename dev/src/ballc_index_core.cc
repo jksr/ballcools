@@ -101,6 +101,14 @@ IndexVec::iterator IndexCore::LowerBound(const IndexKey& key) {
     std::cout << "lower wrong\n"; 
 }
 
+IndexVec::iterator IndexCore::Begin() {
+    return this->index_vec.begin();
+}
+
+IndexVec::iterator IndexCore::End() {
+    return this->index_vec.end();
+}
+
 
 void IndexCore::WriteIndex(BGZF* bgzf){
     size_t size = this->index_vec.size();

@@ -18,12 +18,12 @@ int main(int argc, char **argv) {
     std::string allc_path, ballc_path, chrom_size_path, assembly, header_text;
     std::string fasta_path, cmeta_path;
     std::string grange;
+    std::string c_context;
     bool sc=true;
     bool q_warn=false, q_err=false, q_skip=false;
     bool header=false, refs=false, records=false;
 
-
-
+    // allc-to-ballc
     cmd_a2ballc->add_option("allcpath", allc_path, "AllC file path")->required();
     cmd_a2ballc->add_option("ballcpath", ballc_path, "BAllC file path")->required();
     cmd_a2ballc->add_option("chrompath", chrom_size_path, "Path to the chromosome size file or the .fai file")->required();
@@ -38,14 +38,22 @@ Default: true")->default_val(true);
                             )->default_val("");
 
 
+    // index ballc
     cmd_index->add_option("ballcpath", ballc_path, "BAllC file path")->required();
 
+    // extract cmeta
     cmd_meta->add_option("fastapath", fasta_path, "Genome FASTA file path")->required();
     cmd_meta->add_option("cmetapath", cmeta_path, "Output path")->required();
 
+    // query ballc
     cmd_query->add_option("ballcpath", ballc_path, "BAllC file path")->required();
     cmd_query->add_option("genomerange", grange, "Genome range of interests. Supported formats are chrX, chrX:\
     chrX:XXX-XXX, chrX:-XXX, chrX:XXX-")->required();
+    cmd_query->add_option("-c,--cmetapath", cmeta_path, "Output path")->default_val("");
+    cmd_query->add_option("-x,--c_context", c_context, "Filter Cs only in desired context. \
+The context code is three letters from IUPAC nucleotide symbols. The first letter should always be C.\
+For example, the c_context CGN matches CGA, CGT, CGC, CGG, and CGN, \
+and only C records in these contexts will be displayed.")->default_val("*");
     cmd_query->add_flag("-w,--warn_mismatch", q_warn, "Warning message will be displayed if mismatches detected between the BAllC file and the CMeta.\
 The program WILL NOT halt. Default: false."
                             );
@@ -94,16 +102,20 @@ If not skip, the strandness and the C-context of the C will be displayed as \"?\
     else if(*cmd_query) {
         if(cmeta_path==""){
             if(test_iter){
-            IterQueryBallc(ballc_path.c_str(), grange.c_str());
-
+            QueryBallc_Iter(ballc_path.c_str(), grange.c_str());
             }
             else{
             QueryBallc(ballc_path.c_str(), grange.c_str());
-
             }
         }
         else{
+            if(test_iter){
             QueryBallcWithMeta(ballc_path.c_str(), cmeta_path.c_str(), grange.c_str(), q_warn, q_err, q_skip);
+            }
+            else{
+            QueryBallcWithMeta_Iter(ballc_path.c_str(), cmeta_path.c_str(), grange.c_str(), q_warn, q_err, q_skip, c_context);
+            }
+
         }
     }
 
