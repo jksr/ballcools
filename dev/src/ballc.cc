@@ -6,10 +6,10 @@
 
 #include "utils.h"
 
-BAllc::BAllc(const BAllc& ballc):BAllc(ballc.ballc_path.c_str(),'r'){
+BAllC::BAllC(const BAllC& ballc):BAllC(ballc.ballc_path.c_str(),'r'){
 }
 
-BAllc::BAllc(const char* ballc_path, const char mode):ballc_path(ballc_path){
+BAllC::BAllC(const char* ballc_path, const char mode):ballc_path(ballc_path){
     if(mode!='r'){
         throw std::runtime_error("Inappropriate mode1");
     }
@@ -21,7 +21,7 @@ BAllc::BAllc(const char* ballc_path, const char mode):ballc_path(ballc_path){
 }
 
 
-BAllc::BAllc(const char* ballc_path, bool sc, std::string assembly_text, std::string header_text, 
+BAllC::BAllC(const char* ballc_path, bool sc, std::string assembly_text, std::string header_text, 
              std::string chrom_size_path, const char mode):ballc_path(ballc_path){
     if(mode!='w'){
         throw std::runtime_error("Inappropriate mode2");
@@ -29,7 +29,7 @@ BAllc::BAllc(const char* ballc_path, bool sc, std::string assembly_text, std::st
     this->bgzf = bgzf_open(ballc_path, "w9");
     this->writing_mode = true;
 
-    BAllcHeader &header = this->header;
+    BAllCHeader &header = this->header;
     std::memcpy(header.magic,BALLC_MAGIC,sizeof(BALLC_MAGIC));
     header.version = BALLC_VERSION;
     header.version_minor = BALLC_VERSION_MINOR;
@@ -55,12 +55,12 @@ BAllc::BAllc(const char* ballc_path, bool sc, std::string assembly_text, std::st
 } 
 
 
-BAllc::~BAllc(){
+BAllC::~BAllC(){
     bgzf_close(this->bgzf);
 }
 
 
-MCRecord BAllc::AllcLineToMcRecord(std::string line){
+MCRecord BAllC::AllcLineToMcRecord(std::string line){
     MCRecord rec;
     std::vector<std::string> elems = utils::split(line, '\t',7);
     rec.ref_id = this->ref_dict.get(elems[0]);
@@ -77,7 +77,7 @@ MCRecord BAllc::AllcLineToMcRecord(std::string line){
     return rec;
 }
 
-std::string BAllc::McRecordToLine(const MCRecord& record){
+std::string BAllC::McRecordToLine(const MCRecord& record){
     std::string line = this->header.refs[record.ref_id].ref_name;
     line += "\t";
     line += std::to_string(record.pos);
@@ -93,7 +93,7 @@ std::string BAllc::McRecordToLine(const MCRecord& record){
     return line;
 }
 
-MCRecord2 BAllc::McRecordToMcRecord2(const MCRecord& record){
+MCRecord2 BAllC::McRecordToMcRecord2(const MCRecord& record){
     return MCRecord2({.pos = record.pos, 
                       .chrom=this->header.refs[record.ref_id].ref_name,
                       .mc = record.mc,
@@ -102,18 +102,18 @@ MCRecord2 BAllc::McRecordToMcRecord2(const MCRecord& record){
 
 
 
-void BAllc::WriteMcRecord(const MCRecord& record){
+void BAllC::WriteMcRecord(const MCRecord& record){
     return (this->*func_write_record)(record);
 }
-int BAllc::ReadMcRecord(MCRecord& record){
+int BAllC::ReadMcRecord(MCRecord& record){
     return (this->*func_read_record)(record);
 }
 
-void BAllc::WriteHeader(){
+void BAllC::WriteHeader(){
     if(!this->writing_mode){
         throw std::runtime_error("Inappropriate mode3");
     }
-    BAllcHeader &header = this->header;
+    BAllCHeader &header = this->header;
     BGZF* bgzf = this->bgzf;
     bgzf_write(bgzf, &header.magic, sizeof(header.magic));
     bgzf_write(bgzf, &header.version, sizeof(header.version));
@@ -130,16 +130,16 @@ void BAllc::WriteHeader(){
     }
 }
 
-int BAllc::Seek(int64_t pos){
+int BAllC::Seek(int64_t pos){
     return bgzf_seek(this->bgzf, pos, SEEK_SET);
 }
 
-int64_t BAllc::Tell(){
+int64_t BAllC::Tell(){
     return bgzf_tell(this->bgzf);
 }
 
 
-int BAllc::ReadHeader(){
+int BAllC::ReadHeader(){
     if(this->writing_mode){
         throw std::runtime_error("Inappropriate mode4");
     }
@@ -148,7 +148,7 @@ int BAllc::ReadHeader(){
     //     throw std::runtime_error("Error seeking to the beginning of the file");
     // }
 
-    BAllcHeader &header = this->header;
+    BAllCHeader &header = this->header;
     bgzf_read(bgzf, &header.magic, sizeof(header.magic));
     bgzf_read(bgzf, &header.version, sizeof(header.version));
     bgzf_read(bgzf, &header.version_minor, sizeof(header.version_minor));
@@ -177,8 +177,8 @@ int BAllc::ReadHeader(){
     delete tmp;
 }
 
-void BAllc::BuildRefDict(){
-    BAllcHeader &header = this->header;
+void BAllC::BuildRefDict(){
+    BAllCHeader &header = this->header;
     // HashTable* ref_dict = new HashTable();
     for(unsigned int i = 0; i<header.n_refs; i++){
         this->ref_dict.insert(header.refs[i].ref_name, i);
@@ -187,18 +187,18 @@ void BAllc::BuildRefDict(){
     // return ref_dict;
 }
 
-void BAllc::SetupIO(){
+void BAllC::SetupIO(){
     if(this->header.sc){
-        this->func_write_record = &BAllc::WriteScMcRecord;
-        this->func_read_record = &BAllc::ReadScMcRecord;
+        this->func_write_record = &BAllC::WriteScMcRecord;
+        this->func_read_record = &BAllC::ReadScMcRecord;
     }
     else{
-        this->func_write_record = &BAllc::WriteBlkMcRecord;
-        this->func_read_record = &BAllc::ReadBlkMcRecord;
+        this->func_write_record = &BAllC::WriteBlkMcRecord;
+        this->func_read_record = &BAllC::ReadBlkMcRecord;
     }
 }
 
-// BAllc::BAllc(std::string header_text){
+// BAllC::BAllC(std::string header_text){
     
 // }
 
@@ -212,16 +212,16 @@ void BAllc::SetupIO(){
 //     //TODO
 // }
 
-// BGZF* BAllc::OpenBgzf(const std::string& filePath, const std::string& mode){
+// BGZF* BAllC::OpenBgzf(const std::string& filePath, const std::string& mode){
 //     BGZF *bgzf = bgzf_open(filePath.c_str(), mode.c_str());
 //     return bgzf;
 // }
 
-// bool BAllc::CloseBgzf(BGZF* bgzf){
+// bool BAllC::CloseBgzf(BGZF* bgzf){
 //     bgzf_close(bgzf);
 // }
 
-void BAllc::WriteScMcRecord(const MCRecord& record){
+void BAllC::WriteScMcRecord(const MCRecord& record){
     BGZF* bgzf = this->bgzf;
     bgzf_write(bgzf, &record.pos, sizeof(record.pos));
     bgzf_write(bgzf, &record.ref_id, sizeof(record.ref_id));
@@ -238,7 +238,7 @@ void BAllc::WriteScMcRecord(const MCRecord& record){
     // bgzf_write(bgzf, record.mc_text.data(), record.l_text);
 }
 
-void BAllc::WriteBlkMcRecord(const MCRecord& record){
+void BAllC::WriteBlkMcRecord(const MCRecord& record){
     BGZF* bgzf = this->bgzf;
     bgzf_write(bgzf, &record.pos, sizeof(record.pos));
     bgzf_write(bgzf, &record.ref_id, sizeof(record.ref_id));
@@ -253,7 +253,7 @@ void BAllc::WriteBlkMcRecord(const MCRecord& record){
     // bgzf_write(bgzf, record.mc_text.data(), record.l_text);
 }
 
-int BAllc::ReadScMcRecord(MCRecord& record){
+int BAllC::ReadScMcRecord(MCRecord& record){
     BGZF* bgzf = this->bgzf;
     // int good = bgzf_read(bgzf, &record.ref_id, sizeof(record.ref_id));
     int good = bgzf_read(bgzf, &record.pos, sizeof(record.pos));
@@ -276,7 +276,7 @@ int BAllc::ReadScMcRecord(MCRecord& record){
     return good;
 }
 
-int BAllc::ReadBlkMcRecord(MCRecord& record){
+int BAllC::ReadBlkMcRecord(MCRecord& record){
     BGZF* bgzf = this->bgzf;
     // int good = bgzf_read(bgzf, &record.ref_id, sizeof(record.ref_id));
     int good = bgzf_read(bgzf, &record.pos, sizeof(record.pos));

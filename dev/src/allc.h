@@ -5,10 +5,10 @@
 #include <fstream>
 
 
-class Allc {
+class AllC {
 public:
-    Allc(const char* file_path);
-    ~Allc();
+    AllC(const char* file_path);
+    ~AllC();
     std::string ReadLine();
 
 private:

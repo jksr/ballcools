@@ -2,7 +2,6 @@
 #include <vector>
 #include <unordered_map>
 #include  <stdexcept>
-// #include <functional>
 #include <algorithm>
 #include "ballc_files.h"
 #include "ballc_index_core.h"
@@ -48,36 +47,30 @@ void IndexCore::AddChunk(IndexKey key, uint64_t chunk_start, uint64_t chunk_end)
 
 
 IndexVec::iterator IndexCore::UpperBound(const IndexKey& key) {
-    std::cout << "upper in\n"; 
     auto pos = this->pos_book.find(key);
     if ( pos == this->pos_book.end()){
         auto ref_id_pos = this->ref_id_book.find(key.ref_id);
         if(ref_id_pos != this-> ref_id_book.end()){
-    std::cout << "upper out1\n"; 
             return std::upper_bound (this->index_vec.begin() + ref_id_pos->second.first,
                                     this->index_vec.begin() + ref_id_pos->second.second,
                                     IndexEntry({.key=key}));
         }
         else{
 
-    std::cout << "upper out3\n"; 
             throw std::runtime_error("Unknown chrom id");
             
         }
     }
     else{
-    std::cout << "upper out2\n"; 
         return this->index_vec.begin()+pos->second +1; //+1?
     }
 }
 
 IndexVec::iterator IndexCore::LowerBound(const IndexKey& key) {
-    std::cout << "lower iin\n"; 
     auto pos = this->pos_book.find(key);
     if ( pos == this->pos_book.end()){
         auto ref_id_pos = this->ref_id_book.find(key.ref_id);
         if(ref_id_pos != this-> ref_id_book.end()){
-    std::cout << "lower out1\n"; 
             return std::lower_bound(this->index_vec.begin() + ref_id_pos->second.first,
                                     this->index_vec.begin() + ref_id_pos->second.second,
                                     IndexEntry({.key=key}));
@@ -91,14 +84,11 @@ IndexVec::iterator IndexCore::LowerBound(const IndexKey& key) {
         if(pos->second>0){
             auto prev = (this->index_vec.begin()+pos->second-1);
             if(prev->key.ref_id==key.ref_id){
-    std::cout << "lower out3\n"; 
                 return prev;
             }
         } //is this necessary?
-    std::cout << "lower out2\n"; 
         return this->index_vec.begin()+pos->second;
     }
-    std::cout << "lower wrong\n"; 
 }
 
 IndexVec::iterator IndexCore::Begin() {

@@ -8,7 +8,7 @@
 
 #include "timer.h"
 
-BAllcIndex::BAllcIndex(const char* ballc_path):ballc(BAllc(ballc_path)){
+BAllCIndex::BAllCIndex(const char* ballc_path):ballc(BAllC(ballc_path)){
 
     // Timer timer;
 
@@ -20,7 +20,7 @@ BAllcIndex::BAllcIndex(const char* ballc_path):ballc(BAllc(ballc_path)){
     index_file.open(this->index_path.c_str());
     if(index_file){
         ReadIndex();//TODO
-        is_indexed = true;
+        this->is_indexed = true;
     }
 
     // std::cout << "Time taken by init ballc in ballc_index" << timer.elapsed() << "s\n";timer.reset();
@@ -30,18 +30,18 @@ BAllcIndex::BAllcIndex(const char* ballc_path):ballc(BAllc(ballc_path)){
 
 }
 
-void BAllcIndex::InitHeader(){
+void BAllCIndex::InitHeader(){
     std::memcpy(this->header.magic,BALLC_INDEX_MAGIC,sizeof(BALLC_INDEX_MAGIC));
     this->header.n_refs = this->ballc.header.n_refs;
     this->header.refs = this->ballc.header.refs;
 }
 
-BAllcIndex::~BAllcIndex(){
+BAllCIndex::~BAllCIndex(){
     // bgzf_close(this->bgzf);
 }
 
 
-int BAllcIndex::RegToBin(int beg, int end){
+int BAllCIndex::RegToBin(int beg, int end){
     --end;
     if (beg >> 14 == end >> 14) return ((1<<15)-1)/7 + (beg>>14);
     if (beg >> 17 == end >> 17) return ((1<<12)-1)/7 + (beg>>17);
@@ -51,7 +51,7 @@ int BAllcIndex::RegToBin(int beg, int end){
     return 0;
 }
 
-void BAllcIndex::BuildIndex(){
+void BAllCIndex::BuildIndex(){
 
     MCRecord record;
     uint64_t offset;
@@ -60,16 +60,17 @@ void BAllcIndex::BuildIndex(){
         IndexKey key = {record.ref_id, RegToBin(record.pos, record.pos + 1)};
         this->working_index.AddChunk(key, offset, offset);
     }
+    this->is_indexed = true;
 }
 
-void BAllcIndex::WriteIndex(bool override){//TODO
+void BAllCIndex::WriteIndex(bool override){//TODO
     BGZF* index_file = bgzf_open(this->index_path.c_str(), "w9");
     bgzf_write(index_file, &(this->header.magic), sizeof(this->header.magic));
     this->working_index.WriteIndex(index_file);
     bgzf_close(index_file);
 }
 
-int BAllcIndex::ReadIndex(){//TODO
+int BAllCIndex::ReadIndex(){//TODO
     BGZF* index_file = bgzf_open(this->index_path.c_str(), "r");
     bgzf_read(index_file, &(this->header.magic), sizeof(this->header.magic));
     this->working_index.ReadIndex(index_file);
@@ -78,7 +79,7 @@ int BAllcIndex::ReadIndex(){//TODO
 
 
 
-void BAllcIndex::ParseGenomeRange(const std::string& range, std::string& chrom, int& start, int& end){
+void BAllCIndex::ParseGenomeRange(const std::string& range, std::string& chrom, int& start, int& end){
     if (range == "*") {
         chrom = "*";
         start = 0;
@@ -99,74 +100,76 @@ void BAllcIndex::ParseGenomeRange(const std::string& range, std::string& chrom, 
     }
 }
 
+/*------------- legacy code ------------*/ 
+// std::vector<MCRecord> BAllCIndex::QueryMcRecords(const std::string& range){
+//     Timer timer;
+//     std::string chrom;
+//     int start, end;
+//     ParseGenomeRange(range, chrom, start, end);
+//     end++; //to include end position if it's in the file, ie return [start, end] instead of [start, end). this matches the behavior of tabix 
 
-std::vector<MCRecord> BAllcIndex::QueryMcRecords(const std::string& range){
-    Timer timer;
-    std::string chrom;
-    int start, end;
-    ParseGenomeRange(range, chrom, start, end);
-    end++; //to include end position if it's in the file, ie return [start, end] instead of [start, end). this matches the behavior of tabix 
+//     if(chrom=="*"){
+//         throw std::runtime_error(" chrom * not implemented yet");
+//     }
+//     int ref_id = this->ballc.ref_dict.get(chrom);
 
-    if(chrom=="*"){
-        throw std::runtime_error(" chrom * not implemented yet");
-    }
-    int ref_id = this->ballc.ref_dict.get(chrom);
+//     IndexKey start_key = {ref_id, RegToBin(start, start + 1)};
+//     IndexKey end_key = {ref_id, RegToBin(end, end + 1)};
+//     auto start_iter = this->working_index.LowerBound(start_key);
+//     auto end_iter = this->working_index.UpperBound(end_key);
 
-    IndexKey start_key = {ref_id, RegToBin(start, start + 1)};
-    IndexKey end_key = {ref_id, RegToBin(end, end + 1)};
-    auto start_iter = this->working_index.LowerBound(start_key);
-    auto end_iter = this->working_index.UpperBound(end_key);
+//     // std::cout << "\t\tTime taken by ballcindex get ranges: "<< timer.elapsed() << " s" << std::endl;timer.reset();
 
-    // std::cout << "\t\tTime taken by ballcindex get ranges: "<< timer.elapsed() << " s" << std::endl;timer.reset();
+//     std::vector<MCRecord> results;
+//     for (auto iter = start_iter; iter != end_iter; ++iter) {
+//         if(iter->key.ref_id!=ref_id){
+//             continue;
+//         }
+//         if (this->ballc.Seek(iter->chunk_start) < 0) {
+//             throw std::runtime_error("Error seeking to position in file");
+//         }
+//         MCRecord record;
+//         while (this->ballc.Tell() <= iter->chunk_end && ballc.ReadMcRecord(record)) {
+//             if(record.ref_id == ref_id && record.pos >= start && record.pos < end){
+//                 results.push_back(record);
+//             }
+//         }
+//     }
 
-    std::vector<MCRecord> results;
-    for (auto iter = start_iter; iter != end_iter; ++iter) {
-        if(iter->key.ref_id!=ref_id){
-            continue;
-        }
-        if (this->ballc.Seek(iter->chunk_start) < 0) {
-            throw std::runtime_error("Error seeking to position in file");
-        }
-        MCRecord record;
-        while (this->ballc.Tell() <= iter->chunk_end && ballc.ReadMcRecord(record)) {
-            if(record.ref_id == ref_id && record.pos >= start && record.pos < end){
-                results.push_back(record);
-            }
-        }
-    }
-
-    // std::cout << "\t\tTime taken by ballcindex get records: "<< timer.elapsed() << " s" << std::endl;timer.reset();
+//     // std::cout << "\t\tTime taken by ballcindex get records: "<< timer.elapsed() << " s" << std::endl;timer.reset();
     
-    return results;
-}
+//     return results;
+// }
 
 
-std::vector<std::string> BAllcIndex::QueryLines(const std::string& range){
-    auto records = QueryMcRecords(range);
-    std::vector<std::string> results;
-    for(auto record: records){
-        results.push_back(this->ballc.McRecordToLine(record));
-    }
-    return results;
-}
+/*------------- legacy code ------------*/ 
+// std::vector<std::string> BAllCIndex::QueryLines(const std::string& range){
+//     auto records = QueryMcRecords(range);
+//     std::vector<std::string> results;
+//     for(auto record: records){
+//         results.push_back(this->ballc.McRecordToLine(record));
+//     }
+//     return results;
+// }
 
-std::vector<MCRecord2> BAllcIndex::QueryMcRecord2s(const std::string& range){
-    Timer timer;
-    auto records = QueryMcRecords(range);
-    std::cout << "\tTime taken by ballcindex QueryMcRecords: "<< timer.elapsed() << " s" << std::endl;timer.reset();
+/*------------- legacy code ------------*/ 
+// std::vector<MCRecord2> BAllCIndex::QueryMcRecord2s(const std::string& range){
+//     Timer timer;
+//     auto records = QueryMcRecords(range);
+//     std::cout << "\tTime taken by ballcindex QueryMcRecords: "<< timer.elapsed() << " s" << std::endl;timer.reset();
 
-    std::vector<MCRecord2> results;
-    for(auto record: records){
-        results.push_back(this->ballc.McRecordToMcRecord2(record));
-    }
+//     std::vector<MCRecord2> results;
+//     for(auto record: records){
+//         results.push_back(this->ballc.McRecordToMcRecord2(record));
+//     }
 
-    std::cout << "\tTime taken by ballcindex McRecordToMcRecord2 conversion: "<< timer.elapsed() << " s" << std::endl;timer.reset();
+//     std::cout << "\tTime taken by ballcindex McRecordToMcRecord2 conversion: "<< timer.elapsed() << " s" << std::endl;timer.reset();
     
-    return results;
-}
+//     return results;
+// }
 
 
-MCRecordIterator BAllcIndex::QueryMcRecords_Iter(const std::string& range){
+MCRecordIterator BAllCIndex::QueryMcRecords_Iter(const std::string& range){
     std::string chrom;
     int start, end;
     ParseGenomeRange(range, chrom, start, end);
@@ -189,34 +192,3 @@ MCRecordIterator BAllcIndex::QueryMcRecords_Iter(const std::string& range){
 
     return MCRecordIterator(this->ballc, start_iter, end_iter, ref_id, start, end);
 }
-
-// std::vector<MCRecord> BAllcIndex::QueryMcRecords_Iter(const std::string& range){
-//     std::string chrom;
-//     int start, end;
-//     ParseGenomeRange(range, chrom, start, end);
-//     end++; //to include end position if it's in the file, ie return [start, end] instead of [start, end). this matches the behavior of tabix 
-
-//     int ref_id = this->ballc.ref_dict.get(chrom);
-//     IndexKey start_key = {ref_id, RegToBin(start, start + 1)};
-//     IndexKey end_key = {ref_id, RegToBin(end, end + 1)};
-//     auto start_iter = this->working_index.LowerBound(start_key);
-//     auto end_iter = this->working_index.UpperBound(end_key);
-
-//     MCRecordIterator mciter(this->ballc, start_iter, end_iter, ref_id, start, end);
-
-//     std::vector<MCRecord> results;
-//     while(mciter.HasNext()){
-//         results.push_back(mciter.Next());
-//     }
-//     return results;
-// }
-
-
-// std::vector<std::string> BAllcIndex::QueryLines_Iter(const std::string& range){
-//     auto records = IterQueryMcRecords(range);
-//     std::vector<std::string> results;
-//     for(auto record: records){
-//         results.push_back(this->ballc.McRecordToLine(record));
-//     }
-//     return results;
-// }

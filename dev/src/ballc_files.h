@@ -13,7 +13,7 @@ constexpr int BALLC_VERSION_MINOR = 1;
 constexpr char BALLC_MAGIC[] = "BALLC\1";
 constexpr char BALLC_INDEX_MAGIC[] = "BALLCIDX\1";
 
-struct BAllcHeader {
+struct BAllCHeader {
     char magic[6];
     uint8_t version = BALLC_VERSION;
     uint8_t version_minor = BALLC_VERSION_MINOR;
@@ -24,36 +24,27 @@ struct BAllcHeader {
     std::string header_text;
     uint16_t n_refs;
     std::vector<RefRecord> refs;
-    // uint32_t n_contexts;
-    // std::vector<std::string> contexts;
 };
 
+
+// internal record to store in file
 struct MCRecord {
 	uint32_t pos;
     uint16_t ref_id;
-	// char strand;
-	// uint8_t c_context;
     uint16_t mc;
     uint16_t cov;
-    // uint32_t l_text;
-    // std::string mc_text;
-    // ~MCRecord(){}
 };
 
+// record to display
 struct MCRecord2 {
 	uint32_t pos;
     std::string chrom;
-	// char strand;
-	// uint8_t c_context;
     uint16_t mc;
     uint16_t cov;
-    // uint32_t l_text;
-    // std::string mc_text;
-    // ~MCRecord(){}
 };
 
-struct BAllcFile {
-    BAllcHeader header;
+struct BAllCFile {
+    BAllCHeader header;
     std::vector<MCRecord> mc_records;
 };
 
@@ -96,7 +87,7 @@ struct IndexEntry{
 };
 
 
-struct BAllcIndexFile{
+struct BAllCIndexFile{
     IndexHeader header;
     uint32_t n_entries;
     std::vector<IndexEntry> index;

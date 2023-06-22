@@ -7,7 +7,7 @@
 
 class MCRecordIterator {
 public:
-    MCRecordIterator(const BAllc& ballc, IndexVec::const_iterator start_iter,
+    MCRecordIterator(const BAllC& ballc, IndexVec::const_iterator start_iter,
                        IndexVec::const_iterator end_iter, 
                        int ref_id, int start, int end);
 
@@ -15,14 +15,15 @@ public:
 
     bool HasNext() const ;
 
-    MCRecord NextMCRecord();
-    MCRecord2 NextMCRecord2();
-    std::string NextLine();
+    MCRecord2 Next();
+    // std::string NextLine();
     bool RefIdMatch(int id1, int id2);
 
 
 private:
-    BAllc ballc;
+    MCRecord Next_();
+
+    BAllC ballc;
     IndexVec::const_iterator curr_iter;
     IndexVec::const_iterator end_iter;
     int ref_id, start, end;

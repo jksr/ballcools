@@ -63,8 +63,6 @@ The program WILL halt. Default: false."
     cmd_query->add_flag("-s,--skip_mismatch", q_skip, "Skip displaying the C record which has mismatch between the BAllC file and the CMeta.\
 If not skip, the strandness and the C-context of the C will be displayed as \"?\tC??\". Default: truee."
                             );
-    bool test_iter = false;//////////
-    cmd_query->add_flag("-i", test_iter, "test iter");//////////
 
 
     cmd_view->add_option("ballcpath", ballc_path, "BAllC file path")->required();
@@ -88,34 +86,26 @@ If not skip, the strandness and the C-context of the C will be displayed as \"?\
 
     // Call the appropriate function based on the subcommand chosen.
     if(*cmd_view) {
-        ViewBallc(ballc_path.c_str(), header, refs, records, cmeta_path.c_str());
+        routine::ViewBallc(ballc_path.c_str(), header, refs, records, cmeta_path.c_str());
     }
     else if(*cmd_a2ballc) {
-        AllcToBallc(allc_path.c_str(), ballc_path.c_str(), chrom_size_path, assembly, header_text, sc);
+        routine::AllCToBallC(allc_path.c_str(), ballc_path.c_str(), chrom_size_path, assembly, header_text, sc);
     }
     else if(*cmd_index) {
-        IndexBallc(ballc_path.c_str());
+        routine::IndexBallc(ballc_path.c_str());
     }
     else if(*cmd_meta) {
-        ExtractAllCMeta(fasta_path.c_str(), cmeta_path.c_str());
+        routine::ExtractAllCMeta(fasta_path.c_str(), cmeta_path.c_str());
     }
     else if(*cmd_query) {
         if(cmeta_path==""){
-            if(test_iter){
-            QueryBallc_Iter(ballc_path.c_str(), grange.c_str());
-            }
-            else{
-            QueryBallc(ballc_path.c_str(), grange.c_str());
-            }
+            routine::QueryBallc_Iter(ballc_path.c_str(), grange.c_str());
+            // routine::QueryBallc(ballc_path.c_str(), grange.c_str());
         }
         else{
-            if(test_iter){
-            QueryBallcWithMeta(ballc_path.c_str(), cmeta_path.c_str(), grange.c_str(), q_warn, q_err, q_skip);
-            }
-            else{
-            QueryBallcWithMeta_Iter(ballc_path.c_str(), cmeta_path.c_str(), grange.c_str(), q_warn, q_err, q_skip, c_context);
-            }
-
+            routine::QueryBallcWithMeta_Iter(ballc_path.c_str(), cmeta_path.c_str(), grange.c_str(), 
+                                            q_warn, q_err, q_skip, c_context);
+            // routine::QueryBallcWithMeta(ballc_path.c_str(), cmeta_path.c_str(), grange.c_str(), q_warn, q_err, q_skip);
         }
     }
 

@@ -7,18 +7,18 @@
 #include <htslib/bgzf.h>
 #include "ballc_files.h"
 
-class BAllc:public BAllcFile{
-friend class BAllcIndex;
+class BAllC:public BAllCFile{
+friend class BAllCIndex;
 public:
-    BAllc(const BAllc& ballc);
-    BAllc(const char* ballc_path, const char mode='r');
-    BAllc(const char* ballc_path, bool sc, std::string assembly_text, std::string header_text, std::string chrom_size_path, const char mode='w');
-    ~BAllc();
+    BAllC(const BAllC& ballc);
+    BAllC(const char* ballc_path, const char mode='r');
+    BAllC(const char* ballc_path, bool sc, std::string assembly_text, std::string header_text, std::string chrom_size_path, const char mode='w');
+    ~BAllC();
     MCRecord AllcLineToMcRecord(std::string line);
     std::string McRecordToLine(const MCRecord& record);
     MCRecord2 McRecordToMcRecord2(const MCRecord& record);
-    typedef void (BAllc::*FuncWriteRecord)(const MCRecord& record);
-    typedef int (BAllc::*FuncReadRecord)(MCRecord& record);
+    typedef void (BAllC::*FuncWriteRecord)(const MCRecord& record);
+    typedef int (BAllC::*FuncReadRecord)(MCRecord& record);
     void WriteMcRecord(const MCRecord& record);
     int ReadMcRecord(MCRecord& record);
 

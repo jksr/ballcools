@@ -1,7 +1,7 @@
 #include "ballc_iterator.h"
 
 
-MCRecordIterator::MCRecordIterator(const BAllc& ballc, IndexVec::const_iterator start_iter,
+MCRecordIterator::MCRecordIterator(const BAllC& ballc, IndexVec::const_iterator start_iter,
                                     IndexVec::const_iterator end_iter, int ref_id, int start, int end
                                   ) : ballc(ballc), curr_iter(start_iter), end_iter(end_iter), ref_id(ref_id), 
                                       start(start), end(end), reach_end(false), inited(false){
@@ -9,41 +9,39 @@ MCRecordIterator::MCRecordIterator(const BAllc& ballc, IndexVec::const_iterator 
     AdavanceToNextValid();
 }
 
-    void MCRecordIterator::AdavanceToNextValid() {
-        if(reach_end){
-            return;
+void MCRecordIterator::AdavanceToNextValid() {
+    if(reach_end){
+        return;
+    }
+
+    bool found = false;
+    for( ; this->curr_iter != this->end_iter; ++(this->curr_iter)){
+
+        if(!RefIdMatch(this->curr_iter->key.ref_id, ref_id)){
+            continue;
         }
-
-        bool found = false;
-        for( ; this->curr_iter != this->end_iter; ++(this->curr_iter)){
-
-            // if(this->curr_iter->key.ref_id!=ref_id){
-            if(!RefIdMatch(this->curr_iter->key.ref_id, ref_id)){
-                continue;
+        if(!inited){
+            if (this->ballc.Seek(this->curr_iter->chunk_start) < 0) {
+                throw std::runtime_error("Error seeking to position in file");
             }
-            if(!inited){
-                if (this->ballc.Seek(this->curr_iter->chunk_start) < 0) {
-                    throw std::runtime_error("Error seeking to position in file");
-                }
-            }
-            while (this->ballc.Tell() <= this->curr_iter->chunk_end && ballc.ReadMcRecord(this->next_rec)) {
-                // if(this->next_rec.ref_id == ref_id && this->next_rec.pos >= start && this->next_rec.pos < end){
-                if(RefIdMatch(this->curr_iter->key.ref_id, ref_id) && this->next_rec.pos >= start && this->next_rec.pos < end){
-                    found = true;
-                    break;
-                }
-            }
-            if(found){
+        }
+        while (this->ballc.Tell() <= this->curr_iter->chunk_end && ballc.ReadMcRecord(this->next_rec)) {
+            if(RefIdMatch(this->curr_iter->key.ref_id, ref_id) && this->next_rec.pos >= start && this->next_rec.pos < end){
+                found = true;
                 break;
             }
         }
-        if(!inited){
-            inited = true;
-        }
-        if(!found){
-            reach_end = true;
+        if(found){
+            break;
         }
     }
+    if(!inited){
+        inited = true;
+    }
+    if(!found){
+        reach_end = true;
+    }
+}
 
 bool MCRecordIterator::HasNext() const {
     return reach_end==false;
@@ -53,7 +51,7 @@ bool MCRecordIterator::RefIdMatch(int id1, int id2){
     return (id1==-1||id2==-1) || (id1==id2);
 }
 
-MCRecord MCRecordIterator::NextMCRecord() {
+MCRecord MCRecordIterator::Next_() {
     if (!HasNext()) {
         throw std::runtime_error("No more records");
     }
@@ -62,10 +60,7 @@ MCRecord MCRecordIterator::NextMCRecord() {
     return record;
 }
 
-MCRecord2 MCRecordIterator::NextMCRecord2() {
-    return this->ballc.McRecordToMcRecord2(NextMCRecord());
+MCRecord2 MCRecordIterator::Next() {
+    return this->ballc.McRecordToMcRecord2(Next_());
 }
 
-std::string MCRecordIterator::NextLine() {
-    return this->ballc.McRecordToLine(NextMCRecord());
-}

@@ -13,24 +13,19 @@
 constexpr int GRANGE_END_MAX = (1 << 26) - 1;
 
 
-class BAllcIndex:private BAllcIndexFile{
+class BAllCIndex:private BAllCIndexFile{
 public:
-    BAllcIndex(const char* ballc_path);
-    ~BAllcIndex();
+    BAllCIndex(const char* ballc_path);
+    ~BAllCIndex();
     void BuildIndex();
     void WriteIndex(bool override=false);
 
 
-    std::vector<MCRecord> QueryMcRecords(const std::string& range);
-    std::vector<std::string> QueryLines(const std::string& range);
-    std::vector<MCRecord2> QueryMcRecord2s(const std::string& range);
-    // void QueryMcRecord2s(const std::string& range, std::vector<MCRecord2>& results);
-    // std::vector<std::string> Query(const std::string& range);
-    // MCRecordIterator IterQueryMcRecords(const std::string& range);
-
+    // std::vector<MCRecord> QueryMcRecords(const std::string& range);
+    // std::vector<std::string> QueryLines(const std::string& range);
+    // std::vector<MCRecord2> QueryMcRecord2s(const std::string& range);
+    
     MCRecordIterator QueryMcRecords_Iter(const std::string& range);
-    // std::vector<MCRecord> QueryMcRecords_Iter(const std::string& range);
-    // std::vector<std::string> QueryLines_Iter(const std::string& range);
 
 
 private:
@@ -47,7 +42,7 @@ private:
     std::string ballc_path;
     std::string index_path;
     HashTable ref_dict;
-    BAllc ballc;
+    BAllC ballc;
 };
 
 

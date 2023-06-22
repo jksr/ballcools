@@ -21,7 +21,6 @@ class BallcIndex;
 class IndexCore{
 public:
 
-    // void AddChunk(IndexKey key, IndexChunk chunk);
     void AddChunk(IndexKey key, uint64_t chunk_start, uint64_t chunk_end);
 
     IndexVec::iterator UpperBound(const IndexKey& key);

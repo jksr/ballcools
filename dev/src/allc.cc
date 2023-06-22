@@ -9,7 +9,7 @@
 
 
 
-Allc::Allc(const char* file_path) {
+AllC::AllC(const char* file_path) {
     this->is_gzip_ = IsGzipFile(file_path);
     if (this->is_gzip_) {
         this->gzip_file_ = gzopen(file_path, "rb");
@@ -18,14 +18,14 @@ Allc::Allc(const char* file_path) {
     }
 }
 
-Allc::~Allc() {
+AllC::~AllC() {
     if (this->is_gzip_) {
         gzclose(this->gzip_file_);
     }
 }
 
 
-std::string Allc::ReadLine() {
+std::string AllC::ReadLine() {
     std::string line;
     if (this->is_gzip_) {
         char buffer[1024];
@@ -48,7 +48,7 @@ std::string Allc::ReadLine() {
     }
 }
 
-bool Allc::IsGzipFile(const char* file_path) {
+bool AllC::IsGzipFile(const char* file_path) {
     std::string filename(file_path);
     return filename.size() > 3 && filename.substr(filename.size() - 3) == ".gz";
 }
