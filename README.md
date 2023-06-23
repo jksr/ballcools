@@ -5,8 +5,8 @@ tools for binary file format of DNA methylation data
 - [x] examine index format and reduce its size
 - [x] organize util main files into CLI
 - [x] change internal query return to iterator
-- [ ] cleanup internal mcrecords and external mcrecords
-- [ ] merge
+- [x] cleanup internal mcrecords and external mcrecords
+- [x] merge
 - [ ] add important check; like order violation etc
 - [ ] extensive test
 - [ ] port to python
