@@ -74,6 +74,12 @@ int BAllCIndex::ReadIndex(){//TODO
     BGZF* index_file = bgzf_open(this->index_path.c_str(), "r");
     bgzf_read(index_file, &(this->header.magic), sizeof(this->header.magic));
     this->working_index.ReadIndex(index_file);
+    // std::cout << "-------- read index ---------\n";
+    // for(auto it = this->working_index.Begin(); it!=this->working_index.End(); ++it){
+    //     std::cout << this->ballc.header.refs[it->key.ref_id].ref_name
+    //             << "\t" << it->chunk_start << "\t" << it->chunk_end << "\n";
+    // }
+    // std::cout << "-------- read index done ---------\n";
 }
 
 
@@ -175,6 +181,26 @@ MCRecordIterator BAllCIndex::QueryMcRecords_Iter(const std::string& range){
     ParseGenomeRange(range, chrom, start, end);
     end++; //to include end position if it's in the file, ie return [start, end] instead of [start, end). this matches the behavior of tabix 
 
+    // return QueryMcRecords_Iter(chrom, start, end);
+    int ref_id = -1;
+    // this->working_index::For
+    IndexVec::iterator start_iter, end_iter;
+    if(chrom!="*"){
+        ref_id = this->ballc.ref_dict.get(chrom);
+        IndexKey start_key = {ref_id, RegToBin(start, start + 1)};
+        IndexKey end_key = {ref_id, RegToBin(end, end + 1)};
+        start_iter = this->working_index.LowerBound(start_key);
+        end_iter = this->working_index.UpperBound(end_key);
+    }
+    else{
+        start_iter = this->working_index.Begin();
+        end_iter = this->working_index.End();
+    }
+
+    return MCRecordIterator(this->ballc, start_iter, end_iter, ref_id, start, end);
+}
+
+MCRecordIterator BAllCIndex::QueryMcRecords_Iter(const std::string& chrom, int start, int end){
     int ref_id = -1;
     // this->working_index::For
     IndexVec::iterator start_iter, end_iter;

@@ -57,8 +57,8 @@ IndexVec::iterator IndexCore::UpperBound(const IndexKey& key) {
         }
         else{
 
-            throw std::runtime_error("Unknown chrom id");
-            
+            // throw std::runtime_error("Unknown chrom id"); // cannot throw err, as there could be uncovered chrom
+            return this->index_vec.end();
         }
     }
     else{
@@ -76,8 +76,8 @@ IndexVec::iterator IndexCore::LowerBound(const IndexKey& key) {
                                     IndexEntry({.key=key}));
         }
         else{
-            throw std::runtime_error("Unknown chrom id");
-            
+            // throw std::runtime_error("Unknown chrom id"); // cannot throw err, as there could be uncovered chrom
+            return this->index_vec.end();
         }
     }
     else{

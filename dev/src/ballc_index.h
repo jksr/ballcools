@@ -13,7 +13,7 @@
 constexpr int GRANGE_END_MAX = (1 << 26) - 1;
 
 
-class BAllCIndex:private BAllCIndexFile{
+class BAllCIndex:public BAllCIndexFile{
 public:
     BAllCIndex(const char* ballc_path);
     ~BAllCIndex();
@@ -26,6 +26,7 @@ public:
     // std::vector<MCRecord2> QueryMcRecord2s(const std::string& range);
     
     MCRecordIterator QueryMcRecords_Iter(const std::string& range);
+    MCRecordIterator QueryMcRecords_Iter(const std::string& chrom, int start, int end);
 
 
 private:

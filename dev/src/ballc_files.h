@@ -6,6 +6,7 @@
 struct RefRecord {
     uint32_t l_name;
     std::string ref_name;
+    uint32_t ref_length;
 };
 
 constexpr int BALLC_VERSION = 0;

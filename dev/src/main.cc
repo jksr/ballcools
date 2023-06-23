@@ -1,5 +1,9 @@
 #include "CLI11.hpp"
 #include "routines.h"
+
+#include "merge_ballc.h"
+
+
 #include <iostream>
 
 #include <string>
@@ -13,6 +17,8 @@ int main(int argc, char **argv) {
     CLI::App* cmd_a2ballc = app.add_subcommand("a2b", "Convert an AllC file to a BAllc file.");
     CLI::App* cmd_meta = app.add_subcommand("meta", "Extract and index C from a genome sequence file (fasta) and store in a CMeta file (bed format).");
     CLI::App* cmd_query = app.add_subcommand("query", "Query info from a BAllC file");
+    CLI::App* cmd_check = app.add_subcommand("check", "check a BAllC file");
+    CLI::App* cmd_merge = app.add_subcommand("merge", "Merge BAllC files");
 
     // Defining options for each subcommand
     std::string allc_path, ballc_path, chrom_size_path, assembly, header_text;
@@ -22,6 +28,8 @@ int main(int argc, char **argv) {
     bool sc=true;
     bool q_warn=false, q_err=false, q_skip=false;
     bool header=false, refs=false, records=false;
+    std::vector<std::string> ballc_paths;
+    std::string out_path;
 
     // allc-to-ballc
     cmd_a2ballc->add_option("allcpath", allc_path, "AllC file path")->required();
@@ -72,6 +80,12 @@ If not skip, the strandness and the C-context of the C will be displayed as \"?\
     cmd_view->add_option("-c,--cmeta_path", cmeta_path, "CMeta path. If provided, strandness and C-context will be shown as well"
                             )->default_val("");
 
+
+    cmd_check->add_option("ballcpath", ballc_path, "BAllC file path")->required();
+
+    cmd_merge->add_option("outputpath", out_path, "Output BAllC file path")->required();
+    cmd_merge->add_option("ballcpaths", ballc_paths, "BAllC file paths")->expected(-1);
+
     // Define options for other subcommands here as needed.
     try {
         app.parse(argc, argv);
@@ -107,6 +121,12 @@ If not skip, the strandness and the C-context of the C will be displayed as \"?\
                                             q_warn, q_err, q_skip, c_context);
             // routine::QueryBallcWithMeta(ballc_path.c_str(), cmeta_path.c_str(), grange.c_str(), q_warn, q_err, q_skip);
         }
+    }
+    else if(*cmd_check) {
+        routine::CheckBallc(ballc_path.c_str());
+    }
+    else if(*cmd_merge) {
+        merge_files(ballc_paths, out_path);
     }
 
     return 0;

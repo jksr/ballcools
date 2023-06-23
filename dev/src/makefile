@@ -1,17 +1,17 @@
 CC = g++
-CFLAGS = -W -Wall -finline-functions -fPIC -std=c++11 -Wno-unused-result -O3
-#CLIB = -lncurses -lpthread -lz -lm
-CLIB = -I /data/wtian/local/miniconda3/envs/sapiens/include -L /data/wtian/local/miniconda3/envs/sapiens/lib
-CF_OPTIMIZE = 1
+CFLAGS = -w -std=c++11 -O3 #-finline-functions -fPIC -Wno-unused-result
+CLIB = -lhts -ldeflate -lbz2 -lpthread -lz -L/data/wtian/local/miniconda3/envs/sapiens/lib
+CINCLUDE = /data/wtian/local/miniconda3/envs/sapiens/include
+# CF_OPTIMIZE = 1
 
-OS := $(shell uname)
-ifeq ($(OS),  Darwin)
-	CFLAGS += -Wno-unused-function
-else
-#	CLIB += -lrt -ltinfo
-endif
+# OS := $(shell uname)
+# ifeq ($(OS),  Darwin)
+# 	CFLAGS += -Wno-unused-function
+# else
+# #	CLIB += -lrt -ltinfo
+# endif
 
-INCLUDE = include
+# INCLUDE = include
 
 PROG = ballcools
 
@@ -31,44 +31,60 @@ exportcf:
 ##### libraries #####
 #####################
 
-LHTSLIB_DIR = htslib
-LHTSLIB_INCLUDE = htslib/htslib
-LHTSLIB = $(LHTSLIB_DIR)/libhts.a
-$(LHTSLIB) :
-	make -C $(LHTSLIB_DIR) libhts.a
+# LHTSLIB_DIR = htslib
+# CINCLUDE = htslib/htslib
+# LHTSLIB = $(LHTSLIB_DIR)/libhts.a
+# $(LHTSLIB) :
+# 	make -C $(LHTSLIB_DIR) libhts.a
 
 ###################
 ### subcommands ###
 ###################
 
-allc.o: allc.cc
-	$(CC) -c $(CFLAGS) -I$(LUTILS_DIR) -I$(LHTSLIB_INCLUDE) $< -o $@
 
-ballc.o: ballc.cc
-	$(CC) -c $(CFLAGS) -I$(LUTILS_DIR) -I$(LHTSLIB_INCLUDE) $< -o $@
+out/allc.o: allc.cc
+	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
 
-hashtable.o: hashtable.cc
-	$(CC) -c $(CFLAGS) -I$(LUTILS_DIR) -I$(LHTSLIB_INCLUDE) $< -o $@
+out/ballc.o: ballc.cc
+	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
 
-meta_indexing.o: meta_indexing.cc
-	$(CC) -c $(CFLAGS) -I$(LUTILS_DIR) -I$(LHTSLIB_INCLUDE) $< -o $@
+out/ballc_index.o: ballc_index.cc
+	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
 
-utils.o: utils.cc
-	$(CC) -c $(CFLAGS) -I$(LUTILS_DIR) -I$(LHTSLIB_INCLUDE) $< -o $@
+out/ballc_index_core.o: ballc_index_core.cc
+	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
+
+out/ballc_iterator.o: ballc_iterator.cc
+	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
+
+out/context_matcher.o: context_matcher.cc
+	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
+
+out/hashtable.o: hashtable.cc
+	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
+
+out/meta_indexing.o: meta_indexing.cc
+	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
+
+out/utils.o: utils.cc
+	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
+
+out/timer.o: timer.cc
+	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
 
 #chunk.o: chunk.c
-#	$(CC) -c $(CFLAGS) -I$(LUTILS_DIR) -I$(LHTSLIB_INCLUDE) $< -o $@
+#	$(CC) -c $(CFLAGS) -I$(LUTILS_DIR) -I$(CINCLUDE) $< -o $@
 #
 #header.o: header.c
-#	$(CC) -c $(CFLAGS) -I$(LUTILS_DIR) -I$(LHTSLIB_INCLUDE) $< -o $@
+#	$(CC) -c $(CFLAGS) -I$(LUTILS_DIR) -I$(CINCLUDE) $< -o $@
 #
 #bundle.o: bundle.c
-#	$(CC) -c $(CFLAGS) -I$(LUTILS_DIR) -I$(LHTSLIB_INCLUDE) $< -o $@
+#	$(CC) -c $(CFLAGS) -I$(LUTILS_DIR) -I$(CINCLUDE) $< -o $@
 #
-LIBS=allc.o ballc.o hashtable.o meta_indexing.o utils.o $(LHTSLIB)
+LIBS=out/allc.o out/ballc_index_core.o out/ballc_index.o out/ballc_iterator.o out/ballc.o out/context_matcher.o out/hashtable.o out/meta_indexing.o out/timer.o out/utils.o
 
-ballcools: $(LIBS) main_allc2ballc.c
-	gcc $(CFLAGS) main_allc2ballc.c -o $@ $(LIBS) $(CLIB)
+ballcools: $(LIBS) main.cc merge_ballc.h
+	g++ -I$(CINCLUDE) $(CFLAGS) main.cc -o $@ $(LIBS) $(CLIB)
 
 
 ### clean just src

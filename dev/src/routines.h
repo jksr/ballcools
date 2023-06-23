@@ -20,9 +20,12 @@ namespace routine{
 
 void AllCToBallC(const char* allc_path, const char* ballc_path, std::string chrom_size_path, 
                 std::string assembly_text, std::string header_text="", bool sc=true){
+
     AllC allc(allc_path);
+
     BAllC ballc(ballc_path, sc, assembly_text, header_text, chrom_size_path, 'w');
     std::string line;
+
     ballc.WriteHeader();
 
     while(true){
@@ -61,7 +64,7 @@ void QueryBallc_Iter(const char* ballc_path, const char* range){
     MCRecord2 rec;
     while(mciter.HasNext()){
         rec = mciter.Next();
-        std::cout << rec.chrom << "\t" << rec.pos << "\t" << rec.mc << "\t" << rec.cov << "\n";
+        std::cout << rec.chrom << "\t" << rec.pos << "\t" << rec.mc << "\t" << rec.cov << std::endl;
     }
 }
 
@@ -123,12 +126,13 @@ void QueryBallc_Iter(const char* ballc_path, const char* range){
 // }
 
 
-inline void OutputMatched(std::string chrom, uint32_t pos, std::string strand, 
+inline void OutputMatched(std::string chrom, uint32_t pos, std::string strand,
                             std::string context, uint16_t mc, uint16_t cov, 
                             const CContextMatcher& matcher
                          ){
     if(matcher.Matches(context)){
-        std::cout << chrom << "\t" << pos << "\t" << strand << "\t" << context << "\t" << mc << "\t" << cov << "\t1\n";
+        std::cout << chrom << "\t" << pos << "\t" << strand << "\t" << context 
+                << "\t" << mc << "\t" << cov << "\t1" << std::endl;
     }
 }
 
@@ -190,15 +194,28 @@ void ViewBallc(const char* ballc_path, bool header, bool refs, bool records, con
         std::cout << "Note: " << ballc.header.header_text << "\n";
     }
     if(refs){
-        std::cout << "References: ";
+        std::cout << "References [length]: ";
         for(int i=0; i<ballc.header.refs.size()-1; i++){
-            std::cout << ballc.header.refs[i].ref_name << ",";
+            std::cout << ballc.header.refs[i].ref_name << " [" << ballc.header.refs[i].ref_length << "],";
         }
-        std::cout << ballc.header.refs.back().ref_name << "\n";
+        std::cout << ballc.header.refs.back().ref_name << " [" << ballc.header.refs.back().ref_length << "]\n";
     }
     if(records){
         //TODO
     }
+}
+
+void CheckBallc(const char* ballc_path){
+    BAllC ballc(ballc_path);
+    int count = 0;
+    MCRecord rec;
+    while(ballc.ReadMcRecord(rec)){
+        if ((count++)%5000000==0){
+            std::cout << "count " << count << " :: " <<  ballc.McRecordToLine(rec);
+        }
+    }
+    std::cout << "total " << count << std::endl;
+
 }
 
 

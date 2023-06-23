@@ -13,6 +13,7 @@ public:
     BAllC(const BAllC& ballc);
     BAllC(const char* ballc_path, const char mode='r');
     BAllC(const char* ballc_path, bool sc, std::string assembly_text, std::string header_text, std::string chrom_size_path, const char mode='w');
+    BAllC(const char* ballc_path, bool sc, std::string assembly_text, std::string header_text, std::vector<RefRecord> refs, const char mode='w');
     ~BAllC();
     MCRecord AllcLineToMcRecord(std::string line);
     std::string McRecordToLine(const MCRecord& record);
@@ -41,8 +42,9 @@ private://TODO
     bool writing_mode;
     FuncWriteRecord func_write_record;
     FuncReadRecord func_read_record;
-    HashTable ref_dict;
     const std::string ballc_path;
+public://TODO
+    HashTable ref_dict;
 };
 
 #endif//_BALLC_H_
