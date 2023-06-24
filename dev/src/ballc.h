@@ -26,6 +26,7 @@ public:
     void WriteHeader();
     int Seek(int64_t pos);
     int64_t Tell();
+    void Close();
 
 
 

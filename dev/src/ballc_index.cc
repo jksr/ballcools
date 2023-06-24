@@ -65,6 +65,9 @@ void BAllCIndex::BuildIndex(){
 
 void BAllCIndex::WriteIndex(bool override){//TODO
     BGZF* index_file = bgzf_open(this->index_path.c_str(), "w9");
+    if(index_file==nullptr){
+        throw std::runtime_error("cannot open the file "+std::string(this->index_path)+".");
+    }
     bgzf_write(index_file, &(this->header.magic), sizeof(this->header.magic));
     this->working_index.WriteIndex(index_file);
     bgzf_close(index_file);
@@ -72,6 +75,13 @@ void BAllCIndex::WriteIndex(bool override){//TODO
 
 int BAllCIndex::ReadIndex(){//TODO
     BGZF* index_file = bgzf_open(this->index_path.c_str(), "r");
+    if(index_file==nullptr){
+        throw std::runtime_error("cannot open the file "+std::string(this->index_path)+".");
+    }
+    if(bgzf_check_EOF(index_file)==0){
+        std::cerr << "EOF marker is absent. The BAllC Index file "+std::string(this->index_path)+" may be broken.";
+    }
+
     bgzf_read(index_file, &(this->header.magic), sizeof(this->header.magic));
     this->working_index.ReadIndex(index_file);
     // std::cout << "-------- read index ---------\n";
@@ -80,6 +90,7 @@ int BAllCIndex::ReadIndex(){//TODO
     //             << "\t" << it->chunk_start << "\t" << it->chunk_end << "\n";
     // }
     // std::cout << "-------- read index done ---------\n";
+    bgzf_close(index_file);
 }
 
 
@@ -179,30 +190,29 @@ MCRecordIterator BAllCIndex::QueryMcRecords_Iter(const std::string& range){
     std::string chrom;
     int start, end;
     ParseGenomeRange(range, chrom, start, end);
-    end++; //to include end position if it's in the file, ie return [start, end] instead of [start, end). this matches the behavior of tabix 
+    // end++; //to include end position if it's in the file, ie return [start, end] instead of [start, end). this matches the behavior of tabix 
 
-    // return QueryMcRecords_Iter(chrom, start, end);
-    int ref_id = -1;
-    // this->working_index::For
-    IndexVec::iterator start_iter, end_iter;
-    if(chrom!="*"){
-        ref_id = this->ballc.ref_dict.get(chrom);
-        IndexKey start_key = {ref_id, RegToBin(start, start + 1)};
-        IndexKey end_key = {ref_id, RegToBin(end, end + 1)};
-        start_iter = this->working_index.LowerBound(start_key);
-        end_iter = this->working_index.UpperBound(end_key);
-    }
-    else{
-        start_iter = this->working_index.Begin();
-        end_iter = this->working_index.End();
-    }
+    return QueryMcRecords_Iter(chrom, start, end);
+    // int ref_id = -1;
+    // IndexVec::iterator start_iter, end_iter;
+    // if(chrom!="*"){
+    //     ref_id = this->ballc.ref_dict.get(chrom);
+    //     IndexKey start_key = {ref_id, RegToBin(start, start + 1)};
+    //     IndexKey end_key = {ref_id, RegToBin(end, end + 1)};
+    //     start_iter = this->working_index.LowerBound(start_key);
+    //     end_iter = this->working_index.UpperBound(end_key);
+    // }
+    // else{
+    //     start_iter = this->working_index.Begin();
+    //     end_iter = this->working_index.End();
+    // }
 
-    return MCRecordIterator(this->ballc, start_iter, end_iter, ref_id, start, end);
+    // return MCRecordIterator(this->ballc, start_iter, end_iter, ref_id, start, end);
 }
 
 MCRecordIterator BAllCIndex::QueryMcRecords_Iter(const std::string& chrom, int start, int end){
+    end+=1; //to include end position if it's in the file, ie return [start, end] instead of [start, end). this matches the behavior of tabix 
     int ref_id = -1;
-    // this->working_index::For
     IndexVec::iterator start_iter, end_iter;
     if(chrom!="*"){
         ref_id = this->ballc.ref_dict.get(chrom);

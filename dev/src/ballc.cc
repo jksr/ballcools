@@ -15,6 +15,12 @@ BAllC::BAllC(const char* ballc_path, const char mode):ballc_path(ballc_path){
         throw std::runtime_error("Inappropriate mode1");
     }
     this->bgzf = bgzf_open(ballc_path, "r");
+    if(this->bgzf==nullptr){
+        throw std::runtime_error("cannot open the file "+std::string(ballc_path)+".");
+    }
+    if(bgzf_check_EOF(this->bgzf)==0){
+        std::cerr << "EOF marker is absent. The BAllC file "+std::string(ballc_path)+" may be truncated.";
+    }
     this->writing_mode = false;
     ReadHeader();
     BuildRefDict();
@@ -24,11 +30,13 @@ BAllC::BAllC(const char* ballc_path, const char mode):ballc_path(ballc_path){
 
 BAllC::BAllC(const char* ballc_path, bool sc, std::string assembly_text, std::string header_text, 
              std::string chrom_size_path, const char mode):ballc_path(ballc_path){
-    std::cout << "this constructor in\n";
     if(mode!='w'){
         throw std::runtime_error("Inappropriate mode2");
     }
     this->bgzf = bgzf_open(ballc_path, "w9");
+    if(this->bgzf==nullptr){
+        throw std::runtime_error("cannot open the file "+std::string(ballc_path)+".");
+    }
     this->writing_mode = true;
 
     BAllCHeader &header = this->header;
@@ -55,7 +63,6 @@ BAllC::BAllC(const char* ballc_path, bool sc, std::string assembly_text, std::st
 
     BuildRefDict();
     SetupIO();
-    std::cout << "this constructor out" << std::endl;
 } 
 
 // BAllC::BAllC(const char* ballc_path, bool sc, std::string assembly_text, std::string header_text, 
@@ -78,6 +85,9 @@ BAllC::BAllC(const char* ballc_path, bool sc, std::string assembly_text, std::st
         throw std::runtime_error("Inappropriate mode2");
     }
     this->bgzf = bgzf_open(ballc_path, "w9");
+    if(this->bgzf==nullptr){
+        throw std::runtime_error("cannot open the file "+std::string(ballc_path)+".");
+    }
     this->writing_mode = true;
 
     BAllCHeader &header = this->header;
@@ -100,7 +110,7 @@ BAllC::BAllC(const char* ballc_path, bool sc, std::string assembly_text, std::st
 }
 
 BAllC::~BAllC(){
-    bgzf_close(this->bgzf);
+    Close();
 }
 
 
@@ -342,3 +352,11 @@ int BAllC::ReadBlkMcRecord(MCRecord& record){
     return good;
 
 }
+
+void BAllC::Close(){
+    if(this->bgzf!=nullptr){
+        bgzf_close(this->bgzf);
+        this->bgzf = nullptr;
+    }
+}
+
