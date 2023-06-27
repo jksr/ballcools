@@ -38,6 +38,6 @@ test:
 
 about:
   home: https://github.com/jksr/ballcools
-  license: Your license here
-  summary: Short description of your project
+  license: GNU General Public License v2.0 (https://github.com/jksr/ballcools/blob/main/LICENSE)
+  summary: BAllCools (tools for binary file format of DNA methylation data)
 
