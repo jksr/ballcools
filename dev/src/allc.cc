@@ -3,6 +3,7 @@
 #include <zlib.h>
 #include <iostream>
 #include <vector>
+#include <stdexcept>
 #include <string>
 #include "allc.h"
 #include "utils.h"
@@ -13,8 +14,14 @@ AllC::AllC(const char* file_path) {
     this->is_gzip_ = IsGzipFile(file_path);
     if (this->is_gzip_) {
         this->gzip_file_ = gzopen(file_path, "rb");
+        if (this->gzip_file_ == nullptr) {
+            throw std::runtime_error("cannot open the file "+std::string(file_path)+".");
+        }
     } else {
         this->plain_file_.open(file_path, std::ios::in);
+        if (this->plain_file_.fail()) {
+            throw std::runtime_error("cannot open the file "+std::string(file_path)+".");
+        }
     }
 }
 

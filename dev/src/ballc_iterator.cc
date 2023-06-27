@@ -5,6 +5,7 @@ MCRecordIterator::MCRecordIterator(const BAllC& ballc, IndexVec::const_iterator 
                                     IndexVec::const_iterator end_iter, int ref_id, int start, int end
                                   ) : ballc(ballc), curr_iter(start_iter), end_iter(end_iter), ref_id(ref_id), 
                                       start(start), end(end), reach_end(false), inited(false){
+    // reach_end = this->ref_id == MCRecordIterator::BAD_REF_ID;
     // Seek to the first record in the range
     AdavanceToNextValid();
 }

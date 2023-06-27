@@ -1,7 +1,8 @@
 #include "hashtable.h"
 
 constexpr int TABLE_SIZE = 512;
-constexpr unsigned int NOT_FOUND = -1;
+constexpr unsigned int NOT_FOUND = -100;
+// constexpr unsigned int NOT_FOUND = -1;
 
 HashTable::HashTable() : table(TABLE_SIZE) {}
 

@@ -19,7 +19,7 @@ BAllC::BAllC(const char* ballc_path, const char mode):ballc_path(ballc_path){
         throw std::runtime_error("cannot open the file "+std::string(ballc_path)+".");
     }
     if(bgzf_check_EOF(this->bgzf)==0){
-        std::cerr << "EOF marker is absent. The BAllC file "+std::string(ballc_path)+" may be truncated.";
+        std::cerr << "EOF marker is absent. The BAllC file "+std::string(ballc_path)+" may be truncated." << std::endl;
     }
     this->writing_mode = false;
     ReadHeader();
@@ -28,42 +28,42 @@ BAllC::BAllC(const char* ballc_path, const char mode):ballc_path(ballc_path){
 }
 
 
-BAllC::BAllC(const char* ballc_path, bool sc, std::string assembly_text, std::string header_text, 
-             std::string chrom_size_path, const char mode):ballc_path(ballc_path){
-    if(mode!='w'){
-        throw std::runtime_error("Inappropriate mode2");
-    }
-    this->bgzf = bgzf_open(ballc_path, "w9");
-    if(this->bgzf==nullptr){
-        throw std::runtime_error("cannot open the file "+std::string(ballc_path)+".");
-    }
-    this->writing_mode = true;
+// BAllC::BAllC(const char* ballc_path, bool sc, std::string assembly_text, std::string header_text, 
+//              std::string chrom_size_path, const char mode):ballc_path(ballc_path){
+//     if(mode!='w'){
+//         throw std::runtime_error("Inappropriate mode2");
+//     }
+//     this->bgzf = bgzf_open(ballc_path, "w9");
+//     if(this->bgzf==nullptr){
+//         throw std::runtime_error("cannot open the file "+std::string(ballc_path)+".");
+//     }
+//     this->writing_mode = true;
 
-    BAllCHeader &header = this->header;
-    std::memcpy(header.magic,BALLC_MAGIC,sizeof(BALLC_MAGIC));
-    header.version = BALLC_VERSION;
-    header.version_minor = BALLC_VERSION_MINOR;
-    header.sc = uint8_t(sc);
-    header.assembly_text = assembly_text;
-    header.l_assembly = header.assembly_text.size();
+//     BAllCHeader &header = this->header;
+//     std::memcpy(header.magic,BALLC_MAGIC,sizeof(BALLC_MAGIC));
+//     header.version = BALLC_VERSION;
+//     header.version_minor = BALLC_VERSION_MINOR;
+//     header.sc = uint8_t(sc);
+//     header.assembly_text = assembly_text;
+//     header.l_assembly = header.assembly_text.size();
 
-    header.header_text = header_text;
-    header.l_text = header.header_text.size();
-    // header.refs = refs;
-    // header.n_refs = header.refs.size();
-    std::ifstream file(chrom_size_path);
-    std::string line;
-    std::vector<std::string> elems;
-    while(std::getline(file, line)){
-        elems = utils::split(line, '\t');
-        RefRecord ref({.l_name=uint32_t(elems[0].size()), .ref_name=elems[0], .ref_length=stoi(elems[1])});
-        header.refs.push_back(ref);
-    }
-    header.n_refs = header.refs.size();
+//     header.header_text = header_text;
+//     header.l_text = header.header_text.size();
+//     // header.refs = refs;
+//     // header.n_refs = header.refs.size();
+//     std::ifstream file(chrom_size_path);
+//     std::string line;
+//     std::vector<std::string> elems;
+//     while(std::getline(file, line)){
+//         elems = utils::split(line, '\t');
+//         RefRecord ref({.l_name=uint32_t(elems[0].size()), .ref_name=elems[0], .ref_length=stoi(elems[1])});
+//         header.refs.push_back(ref);
+//     }
+//     header.n_refs = header.refs.size();
 
-    BuildRefDict();
-    SetupIO();
-} 
+//     BuildRefDict();
+//     SetupIO();
+// } 
 
 // BAllC::BAllC(const char* ballc_path, bool sc, std::string assembly_text, std::string header_text, 
 //              std::string chrom_size_path, const char mode):ballc_path(ballc_path){
@@ -78,6 +78,26 @@ BAllC::BAllC(const char* ballc_path, bool sc, std::string assembly_text, std::st
 //     }
 //     BAllC(ballc_path, sc, assembly_text, header_text, refs, mode);
 // } 
+
+std::vector<RefRecord> BAllC::ReadRefRecords(std::string chrom_size_path){
+    std::vector<RefRecord> refs;
+    std::ifstream file(chrom_size_path);
+    std::string line;
+    std::vector<std::string> elems;
+    while(std::getline(file, line)){
+        elems = utils::split(line, '\t');
+        RefRecord ref({.l_name=uint32_t(elems[0].size()), .ref_name=elems[0], .ref_length=stoi(elems[1])});
+        refs.push_back(ref);
+    }
+    return refs;
+}
+
+BAllC::BAllC(const char* ballc_path, bool sc, std::string assembly_text, std::string header_text, 
+             std::string chrom_size_path, const char mode):
+             BAllC(ballc_path, sc, assembly_text, header_text, ReadRefRecords(chrom_size_path), mode){
+
+}
+
 
 BAllC::BAllC(const char* ballc_path, bool sc, std::string assembly_text, std::string header_text, 
              std::vector<RefRecord> refs, const char mode):ballc_path(ballc_path){
@@ -117,6 +137,7 @@ BAllC::~BAllC(){
 MCRecord BAllC::AllcLineToMcRecord(std::string line){
     MCRecord rec;
     std::vector<std::string> elems = utils::split(line, '\t',7);
+    // rec.ref_id = this->ref_dict.at(elems[0]);
     rec.ref_id = this->ref_dict.get(elems[0]);
     rec.pos = std::stoi(elems[1]);
     // rec.strand = elems[2][0];
@@ -238,6 +259,7 @@ void BAllC::BuildRefDict(){
     // HashTable* ref_dict = new HashTable();
     for(unsigned int i = 0; i<header.n_refs; i++){
         this->ref_dict.insert(header.refs[i].ref_name, i);
+        // this->ref_dict[header.refs[i].ref_name] = i;
     }
     // this->ref_dict = ref_dict;
     // return ref_dict;

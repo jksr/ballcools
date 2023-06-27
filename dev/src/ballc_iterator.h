@@ -19,6 +19,9 @@ public:
     // std::string NextLine();
     bool RefIdMatch(int id1, int id2);
 
+    static const int ANY_REF_ID = -1;
+    static const int BAD_REF_ID = -100;
+
 
 private:
     MCRecord Next_();

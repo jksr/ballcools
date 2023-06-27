@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "hashtable.h"
+// #include <unordered_map>
 #include <htslib/bgzf.h>
 #include "ballc_files.h"
 
@@ -39,6 +40,8 @@ private://TODO
     int ReadScMcRecord(MCRecord& record);
     int ReadBlkMcRecord(MCRecord& record);
 
+    std::vector<RefRecord> ReadRefRecords(std::string chrom_size_path);
+
     BGZF* bgzf;
     bool writing_mode;
     FuncWriteRecord func_write_record;
@@ -46,6 +49,7 @@ private://TODO
     const std::string ballc_path;
 public://TODO
     HashTable ref_dict;
+    // std::unordered_map<std::string, unsigned int> ref_dict;
 };
 
 #endif//_BALLC_H_

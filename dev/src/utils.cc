@@ -38,6 +38,12 @@ std::string join(const std::vector<std::string>& vec, const std::string& delimit
 }
 
 
+void AddSuffixIfNeeded(std::string& str, const std::string& suffix) {
+    if (str.length() >= suffix.length() && str.substr(str.length() - suffix.length()) != suffix) {
+        str += suffix;
+    }
+}
+
 // template <class T1, class T2>
 // std::size_t pair_hash::operator () (const std::pair<T1, T2> &p) const {
 //     auto h1 = std::hash<T1>{}(p.first);

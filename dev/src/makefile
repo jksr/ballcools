@@ -42,34 +42,34 @@ exportcf:
 ###################
 
 
-out/allc.o: allc.cc
+out/allc.o: allc.cc allc.h
 	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
 
-out/ballc.o: ballc.cc
+out/ballc.o: ballc.cc ballc.h
 	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
 
-out/ballc_index.o: ballc_index.cc
+out/ballc_index.o: ballc_index.cc  ballc_index.h 
 	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
 
-out/ballc_index_core.o: ballc_index_core.cc
+out/ballc_index_core.o: ballc_index_core.cc ballc_index_core.h
 	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
 
-out/ballc_iterator.o: ballc_iterator.cc
+out/ballc_iterator.o: ballc_iterator.cc ballc_iterator.h
 	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
 
-out/context_matcher.o: context_matcher.cc
+out/context_matcher.o: context_matcher.cc context_matcher.h
 	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
 
-out/hashtable.o: hashtable.cc
+out/hashtable.o: hashtable.cc hashtable.h
 	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
 
-out/meta_indexing.o: meta_indexing.cc
+out/meta_indexing.o: meta_indexing.cc meta_indexing.h
 	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
 
-out/utils.o: utils.cc
+out/utils.o: utils.cc utils.h
 	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
 
-out/timer.o: timer.cc
+out/timer.o: timer.cc timer.h
 	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
 
 #chunk.o: chunk.c
@@ -81,11 +81,13 @@ out/timer.o: timer.cc
 #bundle.o: bundle.c
 #	$(CC) -c $(CFLAGS) -I$(LUTILS_DIR) -I$(CINCLUDE) $< -o $@
 #
-LIBS=out/allc.o out/ballc_index_core.o out/ballc_index.o out/ballc_iterator.o out/ballc.o out/context_matcher.o out/hashtable.o out/meta_indexing.o out/timer.o out/utils.o
+LIBS=out/hashtable.o out/allc.o out/ballc_index_core.o out/ballc_index.o out/ballc_iterator.o out/ballc.o out/context_matcher.o out/meta_indexing.o out/timer.o out/utils.o
 
-ballcools: $(LIBS) main.cc merge_ballc.h
+ballcools: $(LIBS) main.cc routines.h
 	g++ -I$(CINCLUDE) $(CFLAGS) main.cc -o $@ $(LIBS) $(CLIB)
 
+clean:
+	rm ballcools out/*.o
 
 ### clean just src
 #.PHONY: clean

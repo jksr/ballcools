@@ -26,8 +26,10 @@ void AllCToBallC(const char* allc_path, const char* ballc_path, std::string chro
     BAllC ballc(ballc_path, sc, assembly_text, header_text, chrom_size_path, 'w');
     std::string line;
 
+    std::cout << "Writing BAllC header to " << std::string(ballc_path) << std::endl;
     ballc.WriteHeader();
 
+    std::cout << "Converting AllC to BAllC" << std::endl;
     while(true){
         line = allc.ReadLine();
         if(line==""){
@@ -36,17 +38,25 @@ void AllCToBallC(const char* allc_path, const char* ballc_path, std::string chro
         MCRecord rec = ballc.AllcLineToMcRecord(line);
         ballc.WriteMcRecord(rec);
     }
+    std::cout << "Converting AllC to BAllC finished" << std::endl;
 }
 
 void IndexBallc(const char* ballc_path){
+    std::cout << "Building index for " << std::string(ballc_path) << std::endl;
     BAllCIndex index(ballc_path);
     index.BuildIndex();
+    std::cout << "Writing the index file " << std::string(ballc_path) << ".bci" << std::endl;
     index.WriteIndex();
+    std::cout << "Indexing "<< std::string(ballc_path) << " finished" << std::endl;
 }
 
 void ExtractAllCMeta(const char* fasta_path, const char* cmeta_path){
+    std::cout << "Extracting meta of all Cytosines from  " << std::string(fasta_path) 
+            << " to " << std::string(cmeta_path) << ". This step may take a while" << std::endl;
     ExtractCMeta(fasta_path, cmeta_path);
+    std::cout << "indexing  " << std::string(cmeta_path)  << std::endl;
     IndexCMeta(cmeta_path);
+    std::cout << "Extracting and indexing all Cytosines finished." << std::endl;
 }
 
 /*------------- legacy code ------------*/ 
@@ -217,6 +227,87 @@ void CheckBallc(const char* ballc_path){
     std::cout << "total " << count << std::endl;
 
 }
+
+
+
+void MergeBAllC(const std::vector<std::string> & in_ballc_paths,   const std::string& out_ballc_path, int chunksize=5000000){
+    // vector to store the input file streams
+    std::vector<BAllCIndex> bcis;
+    for(int i = 0; i < in_ballc_paths.size(); i++){
+        BAllCIndex bci(in_ballc_paths[i].c_str());
+        bcis.push_back(std::move(bci));
+    }
+    BAllC ballc(in_ballc_paths[0].c_str());
+    BAllC out(out_ballc_path.c_str(), false, ballc.header.assembly_text, "", ballc.header.refs, 'w');
+    out.WriteHeader();
+
+    //////////////////////////
+    for(auto ref:ballc.header.refs){
+        // std::cout << "Merging " << ref.ref_name << std::endl;
+        for(int s=0; s<ref.ref_length; s+=chunksize){
+            // std::cout << "Merging " << ref.ref_name << "\t" << s << " " << s+chunksize << std::endl;
+            std::vector<std::vector<MCRecord2>> rec_vectors(bcis.size());
+            for (size_t i = 0; i < bcis.size(); ++i) {
+                auto mciter = bcis[i].QueryMcRecords_Iter(ref.ref_name, s, s+chunksize-1);
+                while(mciter.HasNext()){
+                    rec_vectors[i].push_back(mciter.Next());
+                }
+            }
+            
+            std::unordered_map<uint32_t, std::pair<uint16_t,uint16_t>> dict;
+            for(auto vec:rec_vectors){
+                for(auto rec:vec){
+                    if(dict.find(rec.pos)==dict.end()){
+                        dict[rec.pos] = {rec.mc, rec.cov};
+                    }
+                    else{
+                        dict[rec.pos].first += rec.mc;
+                        dict[rec.pos].second += rec.cov;
+                    }
+                }
+            }
+
+            std::map<uint32_t, std::pair<uint16_t,uint16_t>> ordered(dict.begin(), dict.end());
+            MCRecord outrec;
+            for(auto it = ordered.begin(); it != ordered.end(); ++it){
+                // outrec.ref_id = out.ref_dict.at(ref.ref_name);
+                outrec.ref_id = out.ref_dict.get(ref.ref_name);
+                outrec.pos = it->first;
+                outrec.mc = it->second.first;
+                outrec.cov = it->second.second;
+                out.WriteMcRecord(outrec);
+            }
+        }
+    }
+    out.Close();
+    std::cout << "Merging finished." << std::endl;
+}
+
+void MergeBAllC(const std::string& file_of_paths,  const std::string& out_ballc_path, int chunksize=5000000){
+    std::ifstream fin(file_of_paths);
+    if(!fin){
+        throw std::runtime_error("Cannot open "+file_of_paths+".");
+    }
+    std::string line;
+    std::vector<std::string> in_ballc_paths;
+    while (std::getline(fin, line)) {
+        line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end());//strip whitespace
+        in_ballc_paths.push_back(line);
+    }
+    fin.close();
+    
+    MergeBAllC(in_ballc_paths, out_ballc_path, chunksize);
+}
+
+
+
+// void BAllCToAllC(const char* ballc_path, const char* allc_path, const char* cmeta_path){
+//     auto mciter 
+//     BAllCIndex index(ballc_path);
+//     //
+// }
+
+
 
 
 }

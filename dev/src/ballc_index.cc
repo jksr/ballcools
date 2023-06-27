@@ -1,10 +1,10 @@
 #include "ballc_index.h"
 #include "utils.h"
-// #include <limits>
 #include <cstring>
 #include <stdexcept>
 #include <fstream>
 #include <iostream>
+#include <sys/stat.h>
 
 #include "timer.h"
 
@@ -19,6 +19,7 @@ BAllCIndex::BAllCIndex(const char* ballc_path):ballc(BAllC(ballc_path)){
     std::ifstream index_file;
     index_file.open(this->index_path.c_str());
     if(index_file){
+        IsIndexOld();
         ReadIndex();//TODO
         this->is_indexed = true;
     }
@@ -38,6 +39,20 @@ void BAllCIndex::InitHeader(){
 
 BAllCIndex::~BAllCIndex(){
     // bgzf_close(this->bgzf);
+}
+
+bool BAllCIndex::IsIndexOld(){
+    bool old = false;
+    struct stat index_stat, data_stat;
+    if (stat(this->index_path.c_str(), &index_stat) == 0 && stat(this->ballc_path.c_str(), &data_stat) == 0) {
+        if (index_stat.st_mtime < data_stat.st_mtime) {
+            old = true;
+            std::cerr << "Warning: The index file is older than the BAllC file. It may be out-of-date." << std::endl;
+        }
+    } else {
+        std::cerr << "Warning: Could not check file timestamps." << std::endl;
+    }
+    return old;
 }
 
 
@@ -191,7 +206,6 @@ MCRecordIterator BAllCIndex::QueryMcRecords_Iter(const std::string& range){
     int start, end;
     ParseGenomeRange(range, chrom, start, end);
     // end++; //to include end position if it's in the file, ie return [start, end] instead of [start, end). this matches the behavior of tabix 
-
     return QueryMcRecords_Iter(chrom, start, end);
     // int ref_id = -1;
     // IndexVec::iterator start_iter, end_iter;
@@ -211,10 +225,28 @@ MCRecordIterator BAllCIndex::QueryMcRecords_Iter(const std::string& range){
 }
 
 MCRecordIterator BAllCIndex::QueryMcRecords_Iter(const std::string& chrom, int start, int end){
+    if(!this->is_indexed){
+        std::cerr << std::string(this->ballc.ballc_path) << " is not indexed" << std::endl;
+        return MCRecordIterator(this->ballc, this->working_index.End(), this->working_index.End(), MCRecordIterator::BAD_REF_ID, start, end);
+    }
+
     end+=1; //to include end position if it's in the file, ie return [start, end] instead of [start, end). this matches the behavior of tabix 
-    int ref_id = -1;
+    int ref_id = MCRecordIterator::ANY_REF_ID;
     IndexVec::iterator start_iter, end_iter;
     if(chrom!="*"){
+        // auto refit = this->ballc.ref_dict.find(chrom);
+        // if(refit != this->ballc.ref_dict.end()){
+        //     ref_id = refit->second;
+        //     // ref_id = this->ballc.ref_dict.get(chrom);
+        //     IndexKey start_key = {ref_id, RegToBin(start, start + 1)};
+        //     IndexKey end_key = {ref_id, RegToBin(end, end + 1)};
+        //     start_iter = this->working_index.LowerBound(start_key);
+        //     end_iter = this->working_index.UpperBound(end_key);
+        // }
+        // else{
+        //     start_iter = this->working_index.End();
+        //     end_iter = this->working_index.End();
+        // }
         ref_id = this->ballc.ref_dict.get(chrom);
         IndexKey start_key = {ref_id, RegToBin(start, start + 1)};
         IndexKey end_key = {ref_id, RegToBin(end, end + 1)};

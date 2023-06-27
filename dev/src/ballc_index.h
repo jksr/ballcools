@@ -13,7 +13,7 @@
 constexpr int GRANGE_END_MAX = (1 << 26) - 1;
 
 
-class BAllCIndex:public BAllCIndexFile{
+class BAllCIndex:private BAllCIndexFile{
 public:
     BAllCIndex(const char* ballc_path);
     ~BAllCIndex();
@@ -37,12 +37,15 @@ private:
     void InitHeader();
     void BuildRefDict();
 
+    bool IsIndexOld();
+
     bool is_indexed = false;
     IndexCore working_index;
 
     std::string ballc_path;
     std::string index_path;
     HashTable ref_dict;
+    // std::unordered_map<std::string, unsigned int> ref_dict;
     BAllC ballc;
 };
 

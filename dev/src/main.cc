@@ -1,7 +1,7 @@
 #include "CLI11.hpp"
 #include "routines.h"
 
-#include "merge_ballc.h"
+// #include "merge_ballc.h"
 
 
 #include <iostream>
@@ -29,7 +29,8 @@ int main(int argc, char **argv) {
     bool q_warn=false, q_err=false, q_skip=false;
     bool header=false, refs=false, records=false;
     std::vector<std::string> ballc_paths;
-    std::string out_path;
+    std::string out_path, file_of_path;
+    int chunksize = 1000000;
 
     // allc-to-ballc
     cmd_a2ballc->add_option("allcpath", allc_path, "AllC file path")->required();
@@ -84,7 +85,13 @@ If not skip, the strandness and the C-context of the C will be displayed as \"?\
     cmd_check->add_option("ballcpath", ballc_path, "BAllC file path")->required();
 
     cmd_merge->add_option("outputpath", out_path, "Output BAllC file path")->required();
-    cmd_merge->add_option("ballcpaths", ballc_paths, "BAllC file paths")->expected(-1);
+    cmd_merge->add_option("ballcpaths", ballc_paths, "Paths of BAllC files to be merged. \
+This option is exclusive from [-f,--filelist].")->expected(-1);
+    cmd_merge->add_option("-f,--filelist", file_of_path, "File contains the paths to the BAllC files to be merged. \
+One path per line. This option is exclusive from [ballcpaths]."
+                            )->default_val("");
+    cmd_merge->add_option("-c,--chunksize", chunksize, "Chunksize in bp used in merging BAllCs. \
+Bigger value may result in slightly faster running speed but larger memory.")->default_val(5000000);
 
     // Define options for other subcommands here as needed.
     try {
@@ -103,6 +110,7 @@ If not skip, the strandness and the C-context of the C will be displayed as \"?\
         routine::ViewBallc(ballc_path.c_str(), header, refs, records, cmeta_path.c_str());
     }
     else if(*cmd_a2ballc) {
+        utils::AddSuffixIfNeeded(ballc_path, ".ballc");
         routine::AllCToBallC(allc_path.c_str(), ballc_path.c_str(), chrom_size_path, assembly, header_text, sc);
     }
     else if(*cmd_index) {
@@ -126,7 +134,19 @@ If not skip, the strandness and the C-context of the C will be displayed as \"?\
         routine::CheckBallc(ballc_path.c_str());
     }
     else if(*cmd_merge) {
-        merge_files(ballc_paths, out_path);
+        utils::AddSuffixIfNeeded(out_path, ".ballc");
+        if(file_of_path!="" && ballc_paths.size()>0){
+            std::cerr << "Only one of the options between filelist and ballcpaths can be used." << std::endl;
+        }
+        else if(file_of_path!=""){
+            routine::MergeBAllC(file_of_path, out_path, chunksize);
+        }
+        else if(ballc_paths.size()>0){
+            routine::MergeBAllC(ballc_paths, out_path, chunksize);
+        }
+        else{
+            std::cerr << "One of the options between filelist and ballcpaths should be used." << std::endl;
+        }
     }
 
     return 0;
