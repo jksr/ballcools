@@ -1,5 +1,16 @@
-# ballcools
-tools for binary file format of DNA methylation data
+# BAllCools
+Tools for binary file format of DNA methylation data (single cell or bulk)
+
+BAllCools can be installed via conda
+
+`conda install -c jksr ballcools`
+
+AllC format is the ....
+
+To use BAllCools ....
+
+`ballcools -h`
+
 
 * TODO
 - [x] examine index format and reduce its size
@@ -10,8 +21,8 @@ tools for binary file format of DNA methylation data
 - [-] add important check; like order violation etc
 - [x] prepare conda package
 - [ ] to allc
-- [-] write test scipt
-- [ ] extensive test
+- [x] write test scipt
+- [-] extensive test
 - [ ] merge +/- CGN
 - [ ] port to python
 - [ ] add docs
