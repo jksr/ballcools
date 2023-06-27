@@ -2,15 +2,15 @@
 #!/bin/bash
 
 
-cmeta=~/bican/projects/test/h1930001_chrL.cmeta.gz
-chrompath=~/scratch2/human_brain_atlas/custom-genome-with_snp/h1930001/h1930001_with_ChrL/h1930001.fa.fai
+cmeta=~wtian/bican/projects/test/h1930001_chrL.cmeta.gz
+chrompath=~wtian/scratch2/human_brain_atlas/custom-genome-with_snp/h1930001/h1930001_with_ChrL/h1930001.fa.fai
 
 
-ballcools=~/local/ballcools/dev/src/ballcools
+ballcools=~wtian/local/ballcools/dev/src/ballcools
 ballcools=ballcools
 
 ## select one pool folder
-allc_dir=$(ls -d ~/hba/mapping2/hba_*h1930001*)
+allc_dir=$(ls -d ~wtian/hba/mapping2/hba_*h1930001*)
 allc_dir=${allc_dir%/}
 allc_dir=$(echo "$allc_dir" | shuf -n 1)
 
@@ -70,7 +70,9 @@ do
 	done
 done
 
-
+echo -en "\e[32m${counter_good} good test case(s)\e[0m"
+echo -en " and "
+echo -en  "\e[32m${counter_bad} bad test case(s)\e[0m" 
 exit $counter_bad
 
 

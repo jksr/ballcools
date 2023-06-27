@@ -2,8 +2,8 @@ LD_LIBRARY_PATH=${CONDA_PREFIX}/lib
 ballcools=~/local/ballcools/dev/src/ballcools
 allc=~/hba/mapping2/hba_pool0_h1930001_CBV/HBA_191114_H1930001_CB60_CBV_1_P2-4-D7/allc/HBA_191114_H1930001_CB60_CBV_1_P2-4-D7-K8.allc.tsv.gz
 ballc=test/test.ballc
-cmeta=~/bican/projects/test/h1930001.cmeta.gz
-chrompath=~/scratch2/human_brain_atlas/custom-genome-with_snp/h1930001/h1930001.fa.fai
+cmeta=~/bican/projects/test/h1930001_chrL.cmeta.gz
+chrompath=~/scratch2/human_brain_atlas/custom-genome-with_snp/h1930001/h1930001_with_ChrL/h1930001.fa.fai
 
 make clean
 make
