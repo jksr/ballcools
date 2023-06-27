@@ -7,10 +7,12 @@ tools for binary file format of DNA methylation data
 - [x] change internal query return to iterator
 - [x] cleanup internal mcrecords and external mcrecords
 - [x] merge
-- [?] add important check; like order violation etc
+- [-] add important check; like order violation etc
 - [x] prepare conda package
 - [ ] to allc
+- [-] write test scipt
 - [ ] extensive test
+- [ ] merge +/- CGN
 - [ ] port to python
 - [ ] add docs
-- [ ] sort
+- ~~[ ] sort; abandon, useless in most usecase~~

@@ -10,8 +10,6 @@
 
 #include "ballc_iterator.h"
 
-constexpr int GRANGE_END_MAX = (1 << 26) - 1;
-
 
 class BAllCIndex:private BAllCIndexFile{
 public:
@@ -27,6 +25,8 @@ public:
     
     MCRecordIterator QueryMcRecords_Iter(const std::string& range);
     MCRecordIterator QueryMcRecords_Iter(const std::string& chrom, int start, int end);
+
+    static const int GRANGE_END_MAX = (1 << 26) - 1;
 
 
 private:
@@ -44,8 +44,8 @@ private:
 
     std::string ballc_path;
     std::string index_path;
-    HashTable ref_dict;
-    // std::unordered_map<std::string, unsigned int> ref_dict;
+    // HashTable ref_dict;
+    std::unordered_map<std::string, unsigned int> ref_dict;
     BAllC ballc;
 };
 

@@ -60,8 +60,8 @@ out/ballc_iterator.o: ballc_iterator.cc ballc_iterator.h
 out/context_matcher.o: context_matcher.cc context_matcher.h
 	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
 
-out/hashtable.o: hashtable.cc hashtable.h
-	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
+# out/hashtable.o: hashtable.cc hashtable.h
+# 	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
 
 out/meta_indexing.o: meta_indexing.cc meta_indexing.h
 	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
@@ -72,18 +72,11 @@ out/utils.o: utils.cc utils.h
 out/timer.o: timer.cc timer.h
 	$(CC) -c $(CFLAGS) -I$(CINCLUDE) $< -o $@
 
-#chunk.o: chunk.c
-#	$(CC) -c $(CFLAGS) -I$(LUTILS_DIR) -I$(CINCLUDE) $< -o $@
-#
-#header.o: header.c
-#	$(CC) -c $(CFLAGS) -I$(LUTILS_DIR) -I$(CINCLUDE) $< -o $@
-#
-#bundle.o: bundle.c
-#	$(CC) -c $(CFLAGS) -I$(LUTILS_DIR) -I$(CINCLUDE) $< -o $@
-#
-LIBS=out/hashtable.o out/allc.o out/ballc_index_core.o out/ballc_index.o out/ballc_iterator.o out/ballc.o out/context_matcher.o out/meta_indexing.o out/timer.o out/utils.o
 
-ballcools: $(LIBS) main.cc routines.h
+# LIBS=out/hashtable.o out/allc.o out/ballc_index_core.o out/ballc_index.o out/ballc_iterator.o out/ballc.o out/context_matcher.o out/meta_indexing.o out/timer.o out/utils.o
+LIBS=out/allc.o out/ballc_index_core.o out/ballc_index.o out/ballc_iterator.o out/ballc.o out/context_matcher.o out/meta_indexing.o out/timer.o out/utils.o
+
+ballcools: $(LIBS) main.cc routines.h version.h
 	g++ -I$(CINCLUDE) $(CFLAGS) main.cc -o $@ $(LIBS) $(CLIB)
 
 clean:

@@ -1,0 +1,43 @@
+package:
+  name: ballcools
+  version: "0.0.1"
+
+source:
+  path: ../src/
+  #path: file.tar.gz
+  #url: http://neomorph.salk.edu/wtian/share/file.tar.gz
+  #url: https://github.com/username/my_cpp_package/archive/v1.0.tar.gz
+  #sha256: put_the_sha256_of_your_tarball_here
+
+build:
+  number: 0
+
+requirements:
+  build:
+    - {{ compiler('cxx') }}
+    - make
+    - zlib
+    - bzip2
+    - htslib
+    - libdeflate
+  host:
+    - zlib
+    - bzip2
+    - htslib
+    - libdeflate
+  run:
+    - zlib
+    - bzip2
+    - htslib
+    - libdeflate
+    - tabix
+
+test:
+  commands:
+    - ballcools --help
+
+about:
+  home: https://github.com/jksr/ballcools
+  license: Your license here
+  summary: Short description of your project
+

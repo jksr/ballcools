@@ -115,7 +115,7 @@ void BAllCIndex::ParseGenomeRange(const std::string& range, std::string& chrom, 
     if (range == "*") {
         chrom = "*";
         start = 0;
-        end = GRANGE_END_MAX;
+        end = BAllCIndex::GRANGE_END_MAX;
     }
     else{
         std::vector<std::string> elems = utils::split(range, ':');
@@ -124,10 +124,10 @@ void BAllCIndex::ParseGenomeRange(const std::string& range, std::string& chrom, 
         if (elems.size() == 2) {
             std::vector<std::string> range_elems = utils::split(elems[1], '-');
             start = range_elems[0].empty() ? 0 : std::stoi(range_elems[0]);
-            end = (range_elems.size() == 2 && !range_elems[1].empty()) ? std::stoi(range_elems[1]) : GRANGE_END_MAX;
+            end = (range_elems.size() == 2 && !range_elems[1].empty()) ? std::stoi(range_elems[1]) : BAllCIndex::GRANGE_END_MAX;
         } else {
             start = 0;
-            end = GRANGE_END_MAX;
+            end = BAllCIndex::GRANGE_END_MAX;
         }
     }
 }
@@ -234,24 +234,25 @@ MCRecordIterator BAllCIndex::QueryMcRecords_Iter(const std::string& chrom, int s
     int ref_id = MCRecordIterator::ANY_REF_ID;
     IndexVec::iterator start_iter, end_iter;
     if(chrom!="*"){
-        // auto refit = this->ballc.ref_dict.find(chrom);
-        // if(refit != this->ballc.ref_dict.end()){
-        //     ref_id = refit->second;
-        //     // ref_id = this->ballc.ref_dict.get(chrom);
-        //     IndexKey start_key = {ref_id, RegToBin(start, start + 1)};
-        //     IndexKey end_key = {ref_id, RegToBin(end, end + 1)};
-        //     start_iter = this->working_index.LowerBound(start_key);
-        //     end_iter = this->working_index.UpperBound(end_key);
-        // }
-        // else{
-        //     start_iter = this->working_index.End();
-        //     end_iter = this->working_index.End();
-        // }
-        ref_id = this->ballc.ref_dict.get(chrom);
-        IndexKey start_key = {ref_id, RegToBin(start, start + 1)};
-        IndexKey end_key = {ref_id, RegToBin(end, end + 1)};
-        start_iter = this->working_index.LowerBound(start_key);
-        end_iter = this->working_index.UpperBound(end_key);
+        auto refit = this->ballc.ref_dict.find(chrom);
+        if(refit != this->ballc.ref_dict.end()){
+            ref_id = refit->second;
+            // ref_id = this->ballc.ref_dict.get(chrom);
+            IndexKey start_key = {ref_id, RegToBin(start, start + 1)};
+            IndexKey end_key = {ref_id, RegToBin(end, end + 1)};
+            start_iter = this->working_index.LowerBound(start_key);
+            end_iter = this->working_index.UpperBound(end_key);
+        }
+        else{
+            ref_id = MCRecordIterator::BAD_REF_ID;
+            start_iter = this->working_index.End();
+            end_iter = this->working_index.End();
+        }
+        // ref_id = this->ballc.ref_dict.get(chrom);
+        // IndexKey start_key = {ref_id, RegToBin(start, start + 1)};
+        // IndexKey end_key = {ref_id, RegToBin(end, end + 1)};
+        // start_iter = this->working_index.LowerBound(start_key);
+        // end_iter = this->working_index.UpperBound(end_key);
     }
     else{
         start_iter = this->working_index.Begin();

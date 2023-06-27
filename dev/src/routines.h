@@ -138,17 +138,17 @@ void QueryBallc_Iter(const char* ballc_path, const char* range){
 
 inline void OutputMatched(std::string chrom, uint32_t pos, std::string strand,
                             std::string context, uint16_t mc, uint16_t cov, 
-                            const CContextMatcher& matcher
+                            const CContextMatcher& matcher, std::ostream& os = std::cout
                          ){
     if(matcher.Matches(context)){
-        std::cout << chrom << "\t" << pos << "\t" << strand << "\t" << context 
+        os << chrom << "\t" << pos << "\t" << strand << "\t" << context 
                 << "\t" << mc << "\t" << cov << "\t1" << std::endl;
     }
 }
 
 void QueryBallcWithMeta_Iter(const char* ballc_path, const char* cmeta_path, const char* range, 
                         bool warn_mismatch=true, bool err_mismatch=true, bool skip_mismatch=true,
-                        std::string c_context="*"){
+                        std::string c_context="*", std::ostream& os=std::cout){
     BAllCIndex index(ballc_path);
     MCRecordIterator mciter = index.QueryMcRecords_Iter(range);
     CContextMatcher context_matcher(c_context);
@@ -173,7 +173,7 @@ void QueryBallcWithMeta_Iter(const char* ballc_path, const char* cmeta_path, con
                 throw std::runtime_error("Ballc file and meta file do not match!");
             }
             if(!skip_mismatch){
-                OutputMatched(record2.chrom, record2.pos, "?", "C??", record2.mc, record2.cov, context_matcher);
+                OutputMatched(record2.chrom, record2.pos, "?", "C??", record2.mc, record2.cov, context_matcher, os);
                 // std::cout << record2.chrom << "\t" << record2.pos << "\t"
                 //     << "?" << "\t" << "C??" << "\t"
                 //     << record2.mc << "\t" << record2.cov << "\t1\n";                    
@@ -183,7 +183,7 @@ void QueryBallcWithMeta_Iter(const char* ballc_path, const char* cmeta_path, con
             tbx_itr_next(fp, tbx, itr, &str);
             auto elems = utils::split(str.s, '\t');
             tbx_itr_destroy(itr);
-            OutputMatched(record2.chrom, record2.pos, elems[2], elems[3], record2.mc, record2.cov, context_matcher);
+            OutputMatched(record2.chrom, record2.pos, elems[2], elems[3], record2.mc, record2.cov, context_matcher, os);
 
             // std::cout << record2.chrom << "\t" << record2.pos << "\t"
             //     << elems[2] << "\t" << elems[3] << "\t"
@@ -270,8 +270,8 @@ void MergeBAllC(const std::vector<std::string> & in_ballc_paths,   const std::st
             std::map<uint32_t, std::pair<uint16_t,uint16_t>> ordered(dict.begin(), dict.end());
             MCRecord outrec;
             for(auto it = ordered.begin(); it != ordered.end(); ++it){
-                // outrec.ref_id = out.ref_dict.at(ref.ref_name);
-                outrec.ref_id = out.ref_dict.get(ref.ref_name);
+                outrec.ref_id = out.ref_dict.at(ref.ref_name);
+                // outrec.ref_id = out.ref_dict.get(ref.ref_name);
                 outrec.pos = it->first;
                 outrec.mc = it->second.first;
                 outrec.cov = it->second.second;
@@ -301,11 +301,14 @@ void MergeBAllC(const std::string& file_of_paths,  const std::string& out_ballc_
 
 
 
-// void BAllCToAllC(const char* ballc_path, const char* allc_path, const char* cmeta_path){
-//     auto mciter 
-//     BAllCIndex index(ballc_path);
-//     //
-// }
+void BAllCToAllC(const char* ballc_path, const char* cmeta_path, const char* allc_path){
+    // QueryBallcWithMeta_Iter(ballc_path, cmeta_path, range, 
+    //                     bool warn_mismatch=true, bool err_mismatch=true, bool skip_mismatch=true,
+    //                     std::string c_context="*", std::ostream& os)
+
+    //
+}
+
 
 
 

@@ -5,7 +5,7 @@ MCRecordIterator::MCRecordIterator(const BAllC& ballc, IndexVec::const_iterator 
                                     IndexVec::const_iterator end_iter, int ref_id, int start, int end
                                   ) : ballc(ballc), curr_iter(start_iter), end_iter(end_iter), ref_id(ref_id), 
                                       start(start), end(end), reach_end(false), inited(false){
-    // reach_end = this->ref_id == MCRecordIterator::BAD_REF_ID;
+    reach_end = this->ref_id == MCRecordIterator::BAD_REF_ID;
     // Seek to the first record in the range
     AdavanceToNextValid();
 }
@@ -49,7 +49,7 @@ bool MCRecordIterator::HasNext() const {
 }
 
 bool MCRecordIterator::RefIdMatch(int id1, int id2){
-    return (id1==-1||id2==-1) || (id1==id2);
+    return (id1==MCRecordIterator::ANY_REF_ID||id2==MCRecordIterator::ANY_REF_ID) || (id1==id2);
 }
 
 MCRecord MCRecordIterator::Next_() {

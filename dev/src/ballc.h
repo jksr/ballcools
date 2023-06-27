@@ -3,8 +3,8 @@
 
 #include <string>
 #include <vector>
-#include "hashtable.h"
-// #include <unordered_map>
+// #include "hashtable.h"
+#include <unordered_map>
 #include <htslib/bgzf.h>
 #include "ballc_files.h"
 
@@ -48,8 +48,8 @@ private://TODO
     FuncReadRecord func_read_record;
     const std::string ballc_path;
 public://TODO
-    HashTable ref_dict;
-    // std::unordered_map<std::string, unsigned int> ref_dict;
+    // HashTable ref_dict;
+    std::unordered_map<std::string, unsigned int> ref_dict;
 };
 
 #endif//_BALLC_H_

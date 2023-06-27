@@ -1,5 +1,6 @@
 #include "CLI11.hpp"
 #include "routines.h"
+#include "version.h"
 
 // #include "merge_ballc.h"
 
@@ -9,7 +10,7 @@
 #include <string>
 
 int main(int argc, char **argv) {
-    CLI::App app{"BAllCools: Binary AllC file tools"};
+    CLI::App app{"BAllCools: Binary AllC file tools v("+version+")"};
 
     // Adding subcommands
     CLI::App* cmd_view = app.add_subcommand("view", "View data stored in a BAllC file.");

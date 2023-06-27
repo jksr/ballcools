@@ -137,8 +137,13 @@ BAllC::~BAllC(){
 MCRecord BAllC::AllcLineToMcRecord(std::string line){
     MCRecord rec;
     std::vector<std::string> elems = utils::split(line, '\t',7);
+    auto found = this->ref_dict.find(elems[0]);
+    if(found==this->ref_dict.end()){
+        throw std::runtime_error("Unknown chrom detected ("+elems[0]+"). There may be a mismatch between the allc file and the chrom_size file");
+    }
+    rec.ref_id = found->second;
     // rec.ref_id = this->ref_dict.at(elems[0]);
-    rec.ref_id = this->ref_dict.get(elems[0]);
+    // rec.ref_id = this->ref_dict.get(elems[0]);
     rec.pos = std::stoi(elems[1]);
     // rec.strand = elems[2][0];
     // rec.c_context = this->context_dict.get(elems[3]);
@@ -258,8 +263,8 @@ void BAllC::BuildRefDict(){
     BAllCHeader &header = this->header;
     // HashTable* ref_dict = new HashTable();
     for(unsigned int i = 0; i<header.n_refs; i++){
-        this->ref_dict.insert(header.refs[i].ref_name, i);
-        // this->ref_dict[header.refs[i].ref_name] = i;
+        // this->ref_dict.insert(header.refs[i].ref_name, i);
+        this->ref_dict[header.refs[i].ref_name] = i;
     }
     // this->ref_dict = ref_dict;
     // return ref_dict;
