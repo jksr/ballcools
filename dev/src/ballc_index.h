@@ -26,7 +26,8 @@ public:
     MCRecordIterator QueryMcRecords_Iter(const std::string& range);
     MCRecordIterator QueryMcRecords_Iter(const std::string& chrom, int start, int end);
 
-    static const int GRANGE_END_MAX = (1 << 26) - 1;
+    static const int GRANGE_END_MAX = (1 << 29) - 1;
+    // static const int GRANGE_END_MAX = (1 << 26) - 1;
 
 
 private:
