@@ -16,6 +16,7 @@ int main(int argc, char **argv) {
     CLI::App* cmd_view = app.add_subcommand("view", "View data stored in a BAllC file.");
     CLI::App* cmd_index = app.add_subcommand("index", "Index a BAllC file.");
     CLI::App* cmd_a2ballc = app.add_subcommand("a2b", "Convert an AllC file to a BAllc file.");
+    CLI::App* cmd_b2allc = app.add_subcommand("b2a", "Convert an BAllC file to a Allc file.");
     CLI::App* cmd_meta = app.add_subcommand("meta", "Extract and index C from a genome sequence file (fasta) and store in a CMeta file (bed format).");
     CLI::App* cmd_query = app.add_subcommand("query", "Query info from a BAllC file");
     CLI::App* cmd_check = app.add_subcommand("check", "check a BAllC file");
@@ -46,6 +47,27 @@ Default: true")->default_val(true);
                             )->default_val("");
     cmd_a2ballc->add_option("-n,--note", header_text, "Note related to the AllC file. Default: \"\""
                             )->default_val("");
+
+    // query ballc
+    cmd_b2allc->add_option("ballcpath", ballc_path, "BAllC file path")->required();
+    cmd_b2allc->add_option("cmetapath", cmeta_path, "Output path")->required();
+    cmd_b2allc->add_option("allcpath", allc_path, "AllC file path")->required();
+    cmd_b2allc->add_option("-x,--c_context", c_context, "Filter Cs only in desired context. \
+The context code is three letters from IUPAC nucleotide symbols. The first letter should always be C.\
+For example, the c_context CGN matches CGA, CGT, CGC, CGG, and CGN, \
+and only C records in these contexts will be displayed.")->default_val("*");
+    cmd_b2allc->add_flag("-w,--warn_mismatch", q_warn, "Warning message will be displayed if mismatches detected between the BAllC file and the CMeta.\
+The program WILL NOT halt. Default: false."
+                            );
+    cmd_b2allc->add_flag("-e,--err_mismatch", q_err, "Runtime error will be caused if mismatches detected between the BAllC file and the CMeta.\
+The program WILL halt. Default: false."
+                            );
+    cmd_b2allc->add_flag("-s,--skip_mismatch", q_skip, "Skip displaying the C record which has mismatch between the BAllC file and the CMeta.\
+If not skip, the strandness and the C-context of the C will be displayed as \"?\tC??\". Default: truee."
+                            );
+
+
+
 
 
     // index ballc
@@ -113,6 +135,13 @@ Bigger value may result in slightly faster running speed but larger memory.")->d
     else if(*cmd_a2ballc) {
         utils::AddSuffixIfNeeded(ballc_path, ".ballc");
         routine::AllCToBallC(allc_path.c_str(), ballc_path.c_str(), chrom_size_path, assembly, header_text, sc);
+    }
+    else if(*cmd_b2allc) {
+        std::string ngz_allc_path(allc_path);
+        ngz_allc_path = utils::RStrip(ngz_allc_path, ".gz");
+        ngz_allc_path = utils::RStrip(ngz_allc_path, ".allc");
+        utils::AddSuffixIfNeeded(ngz_allc_path, ".allc.tsv");
+        routine::BAllCToAllC(ballc_path.c_str(), cmeta_path.c_str(), ngz_allc_path.c_str(), q_warn, q_err, q_skip, c_context);
     }
     else if(*cmd_index) {
         routine::IndexBallc(ballc_path.c_str());

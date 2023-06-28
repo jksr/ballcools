@@ -27,5 +27,7 @@ struct pair_hash {
 
 void AddSuffixIfNeeded(std::string& str, const std::string& suffix);
 
+std::string RStrip(const std::string& str, const std::string& substr);
+
 }
 #endif//_UTILS_H_

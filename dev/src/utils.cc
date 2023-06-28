@@ -44,6 +44,15 @@ void AddSuffixIfNeeded(std::string& str, const std::string& suffix) {
     }
 }
 
+std::string RStrip(const std::string& str, const std::string& substr) {
+    std::string result = str;
+    size_t pos = result.rfind(substr);
+    if (pos != std::string::npos && pos == result.length() - substr.length()) {
+        result.erase(pos);
+    }
+    return result;
+}
+
 // template <class T1, class T2>
 // std::size_t pair_hash::operator () (const std::pair<T1, T2> &p) const {
 //     auto h1 = std::hash<T1>{}(p.first);

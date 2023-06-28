@@ -4,6 +4,7 @@ allc=~/hba/mapping2/hba_pool0_h1930001_CBV/HBA_191114_H1930001_CB60_CBV_1_P2-4-D
 ballc=test/test.ballc
 cmeta=~/bican/projects/test/h1930001_chrL.cmeta.gz
 chrompath=~/scratch2/human_brain_atlas/custom-genome-with_snp/h1930001/h1930001_with_ChrL/h1930001.fa.fai
+outallc=test/HBA_191114_H1930001_CB60_CBV_1_P2-4-D7-K8.allc.tsv.gz
 
 make clean
 make
@@ -11,6 +12,15 @@ rm test/test.ballc* test/HBA_*
 
 ${ballcools} a2b ${allc} ${ballc} ${chrompath} && echo "pass a2b"
 ${ballcools} index  ${ballc} && echo "pass indexing"
+${ballcools} b2a  ${ballc} ${cmeta} ${outallc} && echo "pass b2a"
+zdiff $allc $outallc
+if [ $? -eq 0 ]; then
+        echo -en "\e[32mPASS\e[0m"
+else
+        echo -en "\e[31mNOTPASS\e[0m"
+fi
+echo " b2a no diff"
+exit 0
 
 
 
@@ -60,3 +70,6 @@ do
 	fi
 	echo " query" $range " [${ballc}]"
 done
+
+
+

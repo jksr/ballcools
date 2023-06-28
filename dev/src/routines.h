@@ -301,14 +301,40 @@ void MergeBAllC(const std::string& file_of_paths,  const std::string& out_ballc_
 
 
 
-void BAllCToAllC(const char* ballc_path, const char* cmeta_path, const char* allc_path){
-    // QueryBallcWithMeta_Iter(ballc_path, cmeta_path, range, 
-    //                     bool warn_mismatch=true, bool err_mismatch=true, bool skip_mismatch=true,
-    //                     std::string c_context="*", std::ostream& os)
+void BAllCToAllC(const char* ballc_path, const char* cmeta_path, const char* allc_path,
+                 bool warn_mismatch=true, bool err_mismatch=true, bool skip_mismatch=true,
+                 std::string c_context="*"){
+    std::cout << "Converting BAllC to AllC" << std::endl;
+    std::ofstream fout(allc_path);
+    QueryBallcWithMeta_Iter(ballc_path, cmeta_path, "*", warn_mismatch, err_mismatch, skip_mismatch=true,
+                            c_context="*", fout);
+    fout.close();
 
-    //
+
+    std::cout << "Compressing AllC" << std::endl;
+    std::string command;
+    int exitCode;
+
+    command = "bgzip  " + std::string(allc_path);
+    exitCode = system(command.c_str());
+    if (exitCode != 0) {
+        throw std::runtime_error("Failed to compress the file: " + std::string(allc_path));
+    }
+
+    std::cout << "Indexing AllC" << std::endl;
+    // Create the index with tabix
+    command = "tabix -f -b 2 -e 2 -s 1 " + std::string(allc_path) + ".gz";
+    exitCode = system(command.c_str());
+    if (exitCode != 0) {
+        throw std::runtime_error("Failed to create index for the file: " + std::string(allc_path) + ".gz");
+    }
+    std::cout << "Converting BAllC to AllC finished" << std::endl;
 }
 
+
+void CombineCG(const char* ballc_path, const char* cmeta_path, const char* out_ballc_path,
+                 bool warn_mismatch=true, bool err_mismatch=true, bool skip_mismatch=true,
+                 std::string c_context="*"){}
 
 
 
