@@ -3,6 +3,6 @@
 
 #include <string>
 
-static const std::string version("0.0.1");
+static const std::string version("0.0.2");
 
 #endif//_VERSION_H_
