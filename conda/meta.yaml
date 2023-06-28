@@ -1,9 +1,9 @@
 package:
   name: ballcools
-  version: "0.0.1"
+  version: "0.0.2"
 
 source:
-  path: ../src/
+  path: ../
   #path: file.tar.gz
   #url: http://neomorph.salk.edu/wtian/share/file.tar.gz
   #url: https://github.com/username/my_cpp_package/archive/v1.0.tar.gz
