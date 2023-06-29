@@ -4,7 +4,7 @@
 [![Anaconda-Server Badge](https://anaconda.org/jksr/ballcools/badges/version.svg)](https://anaconda.org/jksr/ballcools)
 [![Anaconda-Server Badge](https://anaconda.org/jksr/ballcools/badges/latest_release_date.svg)](https://anaconda.org/jksr/ballcools)
 
-BAllCools is a comprehensive tool designed to handle binary AllC files (BAllC). The tool aims to solve the challenges posed by the large number of single-cell data. The conventional AllC files store methylation data as text, which becomes significantly bulky when dealing with single-cell data. BAllCools provides an efficient way to store and retrieve data by converting these text files into binary files, thereby saving substantial storage space.
+BAllCools is a comprehensive tool designed to handle binary AllC files (BAllC). The tool aims to solve the challenges posed by the large number of single-cell data. The conventional AllC files store methylation data as text, which becomes significantly bulky when dealing with single-cell data. BAllCools provides an efficient way to store and retrieve data by converting these text files into binary files, thereby saving substantial storage space. **The BAllC format save >55% storage compared to AllC the format, and BAllCools accelorates BAllC operation like data merging (`ballcools merge`) ~30x.**
 
 
 <details>
