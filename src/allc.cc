@@ -26,7 +26,7 @@ AllC::AllC(const char* file_path) {
 }
 
 AllC::~AllC() {
-    if (this->is_gzip_) {
+    if (this->is_gzip_ && this->gzip_file_ != nullptr) {
         gzclose(this->gzip_file_);
     }
 }

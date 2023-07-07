@@ -4,8 +4,8 @@ CLIB = -lhts -ldeflate -lbz2 -lpthread -lz -L${CONDA_PREFIX}/lib
 CINCLUDE = ${CONDA_PREFIX}/include
 
 SRCDIR = src
-BINDIR = out
-OUTDIR = bin
+OUTDIR = out
+BINDIR = bin
 # CF_OPTIMIZE = 1
 
 # OS := $(shell uname)
