@@ -28,4 +28,5 @@ done
 # Create a tarball of the target directory
 tar -czvf ${tgt}.tar.gz ${tgt}
 
-echo "${tgt}.tar.gz is the file generated. you may delete folder ${tgt}"
+echo ""
+echo -e  "\e[32m${tgt}.tar.gz is the file generated. you may delete folder ${tgt}\e[0m"
