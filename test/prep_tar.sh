@@ -26,6 +26,7 @@ do
 done
 
 # Create a tarball of the target directory
+tgt="${tgt%/}"
 tar -czvf ${tgt}.tar.gz ${tgt}
 
 echo ""
