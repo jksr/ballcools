@@ -3,6 +3,8 @@
 [![DOI](https://zenodo.org/badge/653446390.svg)](https://zenodo.org/badge/latestdoi/653446390)
 [![Anaconda-Server Badge](https://anaconda.org/jksr/ballcools/badges/version.svg)](https://anaconda.org/jksr/ballcools)
 [![Anaconda-Server Badge](https://anaconda.org/jksr/ballcools/badges/latest_release_date.svg)](https://anaconda.org/jksr/ballcools)
+[![Anaconda-Server Badge](https://anaconda.org/jksr/ballcools/badges/platforms.svg)](https://anaconda.org/jksr/ballcools)
+
 
 BAllCools is a comprehensive tool designed to handle binary AllC files (BAllC). The tool aims to solve the challenges posed by the large number of single-cell data. The conventional AllC files store methylation data as text, which becomes significantly bulky when dealing with single-cell data. BAllCools provides an efficient way to store and retrieve data by converting these text files into binary files, thereby saving substantial storage space. **The BAllC format save >55% storage compared to AllC the format, and BAllCools accelorates BAllC operation like data merging (`ballcools merge`) ~30x.**
 
@@ -89,12 +91,12 @@ This will print a help message with a summary of the subcommands and their funct
 - [x] change internal query return to iterator
 - [x] cleanup internal mcrecords and external mcrecords
 - [x] merge
-- [-] add important check; like order violation etc
+- [ ] add important check; like order violation etc
 - [x] prepare conda package
 - [x] to allc
 - [x] write test scipt
 - [x] extensive test
-- [ ] port to python
+- [x] port to python
 - [ ] add docs
-- [ ] merge +/- CGN
+- ~~[ ] merge +/- CGN, useless in most usecase, can be done by allcools with allc format~~
 - ~~[ ] sort; abandon, useless in most usecase~~
