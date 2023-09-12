@@ -38,10 +38,15 @@ AllC format is a tab-separated-value (tsv) text format containing base level met
 
 
 ## Installation
-
+### C/C++ version
 The most convient way to install BAllCools is using conda
 ```bash
 conda install -c jksr ballcools
+```
+### python version
+https://github.com/jksr/pyballc
+```
+pip install pyballc
 ```
 
 ## Features
