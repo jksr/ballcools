@@ -101,8 +101,8 @@ If not skip, the strandness and the C-context of the C will be displayed as \"?\
     cmd_view->add_flag("-d,--header", header, "View header")->default_val(false);
     cmd_view->add_flag("-f,--refs", refs, "View the references")->default_val(false);
     cmd_view->add_flag("-r,--records", records, "View the records")->default_val(false);
-    cmd_view->add_option("-c,--cmeta_path", cmeta_path, "CMeta path. If provided, strandness and C-context will be shown as well"
-                            )->default_val("");
+    // cmd_view->add_option("-c,--cmeta_path", cmeta_path, "CMeta path. If provided, strandness and C-context will be shown as well"
+    //                         )->default_val("");
 
 
     cmd_check->add_option("ballcpath", ballc_path, "BAllC file path")->required();
@@ -130,7 +130,8 @@ Bigger value may result in slightly faster running speed but larger memory.")->d
 
     // Call the appropriate function based on the subcommand chosen.
     if(*cmd_view) {
-        routine::ViewBallc(ballc_path.c_str(), header, refs, records, cmeta_path.c_str());
+        // routine::ViewBallc(ballc_path.c_str(), header, refs, records, cmeta_path.c_str());
+        routine::ViewBallc(ballc_path.c_str(), header, refs, records);
     }
     else if(*cmd_a2ballc) {
         utils::AddSuffixIfNeeded(ballc_path, ".ballc");

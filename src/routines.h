@@ -196,7 +196,8 @@ void QueryBallcWithMeta_Iter(const char* ballc_path, const char* cmeta_path, con
     hts_close(fp);
 }
 
-void ViewBallc(const char* ballc_path, bool header, bool refs, bool records, const char* cmeta_path=""){
+// void ViewBallc(const char* ballc_path, bool header, bool refs, bool records, const char* cmeta_path=""){
+void ViewBallc(const char* ballc_path, bool header, bool refs, bool records){
     BAllC ballc(ballc_path, 'r');
     if(header){
         std::cout << "BAllC file: " << ballc_path << "\n";
@@ -211,7 +212,10 @@ void ViewBallc(const char* ballc_path, bool header, bool refs, bool records, con
         std::cout << ballc.header.refs.back().ref_name << " [" << ballc.header.refs.back().ref_length << "]\n";
     }
     if(records){
-        //TODO
+        MCRecord rec;
+        while(ballc.ReadMcRecord(rec)){
+                std::cout <<  ballc.McRecordToLine(rec);
+        }
     }
 }
 
@@ -332,9 +336,9 @@ void BAllCToAllC(const char* ballc_path, const char* cmeta_path, const char* all
 }
 
 
-void CombineCG(const char* ballc_path, const char* cmeta_path, const char* out_ballc_path,
-                 bool warn_mismatch=true, bool err_mismatch=true, bool skip_mismatch=true,
-                 std::string c_context="*"){}
+// void CombineCG(const char* ballc_path, const char* cmeta_path, const char* out_ballc_path,
+//                  bool warn_mismatch=true, bool err_mismatch=true, bool skip_mismatch=true,
+//                  std::string c_context="*"){}
 
 
 
