@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
     std::string fasta_path, cmeta_path;
     std::string grange;
     std::string c_context;
-    bool sc=true;
+    bool bk=true;
     bool q_warn=false, q_err=false, q_skip=false;
     bool header=false, refs=false, records=false;
     std::vector<std::string> ballc_paths;
@@ -38,11 +38,11 @@ int main(int argc, char **argv) {
     cmd_a2ballc->add_option("allcpath", allc_path, "AllC file path")->required();
     cmd_a2ballc->add_option("ballcpath", ballc_path, "BAllC file path")->required();
     cmd_a2ballc->add_option("chrompath", chrom_size_path, "Path to the chromosome size file or the .fai file")->required();
-    cmd_a2ballc->add_flag("-s,--sc", sc, "Whether or not to convernt the AllC file to the single-cell (sc) BAllC format. \
-uint8 data type is used to store methylation info in sc BAllC format, while uint16 is used in non-sc format, \
+    cmd_a2ballc->add_flag("-b,--bk", bk, "Whether or not to convernt the AllC file to the (pseudo-)bulk (bk) BAllC format. \
+uint8 data type is used to store methylation info in sc BAllC format, while uint16 is used in bk format, \
 resulting in smaller disk usage for sc BAllC format. \
-However, converting a non-sc AllC file to a sc BAllC file format may result in broken data in the BAllC file. \
-Default: true")->default_val(true);
+However, converting a bk AllC file to a sc BAllC file format may result in broken data in the BAllC file. \
+Default: false")->default_val(false);
     cmd_a2ballc->add_option("-a,--assembly_info", assembly, "Info of the assembly used in the AllC file. eg, mm10, hg38, hg38-donor1, etc. Default: \"\""
                             )->default_val("");
     cmd_a2ballc->add_option("-n,--note", header_text, "Note related to the AllC file. Default: \"\""
@@ -134,7 +134,7 @@ Bigger value may result in slightly faster running speed but larger memory.")->d
     }
     else if(*cmd_a2ballc) {
         utils::AddSuffixIfNeeded(ballc_path, ".ballc");
-        routine::AllCToBallC(allc_path.c_str(), ballc_path.c_str(), chrom_size_path, assembly, header_text, sc);
+        routine::AllCToBallC(allc_path.c_str(), ballc_path.c_str(), chrom_size_path, assembly, header_text, !bk);
     }
     else if(*cmd_b2allc) {
         std::string ngz_allc_path(allc_path);
