@@ -38,10 +38,15 @@ AllC format is a tab-separated-value (tsv) text format containing base level met
 
 
 ## Installation
-
+### C/C++ version
 The most convient way to install BAllCools is using conda
 ```bash
 conda install -c jksr ballcools
+```
+### python version
+https://github.com/jksr/pyballc
+```
+pip install pyballc
 ```
 
 ## Features
@@ -64,8 +69,25 @@ ballcools [OPTIONS] [SUBCOMMAND]
 
 For help with the tool, use the `-h` or `--help` option:
 
-```bash
+```shell
 ballcools -h
+```
+```text
+BAllCools: Binary AllC file tools v(0.0.1)
+Usage: ballcools [OPTIONS] [SUBCOMMAND]
+
+Options:
+  -h,--help                   Print this help message and exit
+
+Subcommands:
+  view                        View data stored in a BAllC file.
+  index                       Index a BAllC file.
+  a2b                         Convert an AllC file to a BAllc file.
+  b2a                         Convert an BAllC file to a Allc file.
+  meta                        Extract and index C from a genome sequence file (fasta) and store in a CMeta file (bed format).
+  query                       Query info from a BAllC file
+  check                       check a BAllC file
+  merge                       Merge BAllC files
 ```
 
 This will print a help message with a summary of the subcommands and their functionalities.
