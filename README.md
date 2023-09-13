@@ -43,6 +43,12 @@ The most convient way to install BAllCools is using conda
 ```bash
 conda install -c jksr ballcools
 ```
+Or create a new environment and install from [env.yaml](https://raw.githubusercontent.com/jksr/ballcools/main/env.yaml)
+```shell
+mamba env create -f ballcools_env.yaml
+# or
+conda env create -f ballcools_env.yaml
+```
 ### python version
 https://github.com/jksr/pyballc
 ```
