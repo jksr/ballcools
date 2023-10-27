@@ -1,6 +1,6 @@
 package:
   name: ballcools
-  version: "0.0.2"
+  version: "0.0.3"
 
 source:
   path: ../
@@ -18,17 +18,17 @@ requirements:
     - make
     - zlib
     - bzip2
-    - htslib
+    - htslib>=1.10
     - libdeflate
   host:
     - zlib
     - bzip2
-    - htslib
+    - htslib>=1.10
     - libdeflate
   run:
     - zlib
     - bzip2
-    - htslib
+    - htslib>=1.10
     - libdeflate
     - tabix
 

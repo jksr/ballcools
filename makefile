@@ -1,5 +1,6 @@
 CC = g++
-CFLAGS = -w -std=c++11 -O3 #-finline-functions -fPIC -Wno-unused-result
+#CFLAGS = -w -std=c++11 -O3 #-finline-functions -fPIC -Wno-unused-result
+CFLAGS = -w -std=c++0x -O3 #-finline-functions -fPIC -Wno-unused-result
 CLIB = -lhts -ldeflate -lbz2 -lpthread -lz -L${CONDA_PREFIX}/lib
 CINCLUDE = ${CONDA_PREFIX}/include
 
