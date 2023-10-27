@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
     CLI::App* cmd_b2allc = app.add_subcommand("b2a", "Convert an BAllC file to a Allc file.");
     CLI::App* cmd_meta = app.add_subcommand("meta", "Extract and index C from a genome sequence file (fasta) and store in a CMeta file (bed format).");
     CLI::App* cmd_query = app.add_subcommand("query", "Query info from a BAllC file");
-    CLI::App* cmd_check = app.add_subcommand("check", "check a BAllC file");
+    //CLI::App* cmd_check = app.add_subcommand("check", "check a BAllC file");
     CLI::App* cmd_merge = app.add_subcommand("merge", "Merge BAllC files");
 
     // Defining options for each subcommand
@@ -105,7 +105,7 @@ If not skip, the strandness and the C-context of the C will be displayed as \"?\
     //                         )->default_val("");
 
 
-    cmd_check->add_option("ballcpath", ballc_path, "BAllC file path")->required();
+    //cmd_check->add_option("ballcpath", ballc_path, "BAllC file path")->required();
 
     cmd_merge->add_option("outputpath", out_path, "Output BAllC file path")->required();
     cmd_merge->add_option("ballcpaths", ballc_paths, "Paths of BAllC files to be merged. \
@@ -161,9 +161,9 @@ Bigger value may result in slightly faster running speed but larger memory.")->d
             // routine::QueryBallcWithMeta(ballc_path.c_str(), cmeta_path.c_str(), grange.c_str(), q_warn, q_err, q_skip);
         }
     }
-    else if(*cmd_check) {
-        routine::CheckBallc(ballc_path.c_str());
-    }
+    //else if(*cmd_check) {
+    //    routine::CheckBallc(ballc_path.c_str());
+    //}
     else if(*cmd_merge) {
         utils::AddSuffixIfNeeded(out_path, ".ballc");
         if(file_of_path!="" && ballc_paths.size()>0){
