@@ -25,7 +25,6 @@ cd ballcools & make
 And then the executable ```ballcools``` will be created in the folder ```bin```.
 
 ### Dependency
-BAllCools 
 ```yaml
 htslib >=1.10, <2.0
 libdeflate >=1.6, <2.0
@@ -40,6 +39,7 @@ libdeflate >=1.6, <2.0
 - **meta**: extracts and indexes Cytosines from a genome sequence file (fasta format) and stores them in a CMeta file (bed format).
 - **query**: allows to retrieve data from a BAllC file according to genome range and context of cytosine.
 - **merge**: merges multiple BAllC files into a single file. This is ~30x faster than merge AllC files directly
+
 
 ## Usage
 
@@ -86,24 +86,18 @@ For a given genome (eg. a standard one like mm10 or hg38 or an individual-specif
 
 
 ### Create BAllC files
+BAllC files can be created from AllC files with command ```ballcools a2b```. It is highly recommended to use the ```--assembly_info``` option to specify a human-readable label (eg, mm10, hg38, hg38-donor1, etc) so that the responding genome and the associated CMeta file would not be mismatched later.
+
+Another option ```--note``` can be used as well to specify more info about the genome or other meta info/notes.
+
+See ```ballcools a2b -h``` for details.
 
 
-
-
-
-
-
-
-
-### python version
+## python version
 BAllCools has python port as well. See [pyballc](https://github.com/jksr/pyballc) for details.
 ```
 pip install pyballc
 ```
-
-
-
-
 
 
 
@@ -120,7 +114,9 @@ pip install pyballc
 - [x] write test scipt
 - [x] extensive test
 - [x] port to python
-- [ ] add docs
+- [x] add docs
+- [ ] merge ballcools and pyballc?
+- ~~[ ] ballc to bw?~~
 - ~~[ ] merge +/- CGN, useless in most usecase, can be done by allcools with allc format~~
 - ~~[ ] sort; abandon, useless in most usecase~~
 
