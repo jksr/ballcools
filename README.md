@@ -99,8 +99,20 @@ BAllCools has python port as well. See [pyballc](https://github.com/jksr/pyballc
 pip install pyballc
 ```
 
+## Citation
 
+BAllCools was described in ```BAllC and BAllCools: Efficient Formatting and Operating for Single-Cell DNA Methylation Data```. W Tian, W Ding, JR Ecker. BioRxiv (https://doi.org/10.1101/2023.09.22.559047). Please cite the paper if you use BAllCools in your research.
 
+    @article {Tian2023ballc,
+        author = {Tian, Wei and Ding, Wubin and Ecker, Joseph R},
+        title = {BAllC and BAllCools: Efficient Formatting and Operating for Single-Cell DNA Methylation Data},
+        year = {2023},
+        doi = {10.1101/2023.09.22.559047},
+        publisher = {Cold Spring Harbor Laboratory},
+        URL = {https://doi.org/10.1101/2023.09.22.559047},
+        journal = {BioRxiv}
+    }
+    
     
 # TODO
 - [x] examine index format and reduce its size
