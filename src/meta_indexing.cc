@@ -2,6 +2,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <cstdlib> // for system()
+#include "utils.h"
 // #include <htslib/hts.h>
 // #include <htslib/tbx.h>
 // #include <htslib/kseq.h>
@@ -61,6 +62,8 @@ void ExtractCMeta(const char* fasta_path, const char* cmeta_path){
             }
             // Prepare for next sequence
             identifier = line.substr(1);  // remove ">" symbol
+            identifier = utils::split(identifier,' ')[0];
+            identifier = utils::split(identifier,'\t')[0];
             sequence.clear();
         } else {
             sequence += line;
