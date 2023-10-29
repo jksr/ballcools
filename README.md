@@ -1,4 +1,4 @@
-# BAllCools: Binary AllC File Tools v0.0.4
+# BAllCools: Binary AllC File Tools v0.0.5
 
 [![DOI](https://zenodo.org/badge/653446390.svg)](https://zenodo.org/badge/latestdoi/653446390)
 [![Anaconda-Server Badge](https://anaconda.org/jksr/ballcools/badges/version.svg)](https://anaconda.org/jksr/ballcools)
