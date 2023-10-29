@@ -82,7 +82,7 @@ Although the CMeta file is not required for BAllC files and BAllCools,
 it is highly recommended to have one to accompany the associated BAllC files.
 For details of the CMeta file, please check [doc/ballc_spec.pdf](https://github.com/jksr/ballcools/blob/main/doc/ballc_spec.pdf).
 
-For a given genome (eg. a standard one like mm10 or hg38 or an individual-specific genome), ```ballcools meta``` can be used to generate the corresponding CMeta file. This step usually takes around 30min. This only need to be run once for each genome, and the resulting CMeta file can be used for all BAllC files associated with this genome.
+For a given genome (eg. a standard one like mm10 or hg38 or an individual-specific genome), ```ballcools meta``` can be used to generate the corresponding CMeta file from the genome fasta file (.fasta or .fa). This step usually takes around 30min. This only need to be run once for each genome, and the resulting CMeta file can be used for all BAllC files associated with this genome.
 
 
 ### Create BAllC files
@@ -91,6 +91,9 @@ BAllC files can be created from AllC files with command ```ballcools a2b```. It 
 Another option ```--note``` can be used as well to specify more info about the genome or other meta info/notes.
 
 See ```ballcools a2b -h``` for details.
+
+### Query BAllC files
+To query a BAllC file, command ```ballcools query ``` can be used. When the corresponding CMeta file is given with the option ```--cmetapath```, information of cytosine context and strandness will be output. Otherwise, only the methylation read and total read numbers will be output.
 
 
 ## python version
