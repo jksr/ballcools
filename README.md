@@ -8,6 +8,8 @@
 
 BAllCools is a comprehensive tool designed to handle binary AllC files (BAllC). The tool aims to solve the challenges posed by the large number of single-cell data. The conventional AllC files store methylation data as text, which becomes significantly bulky when dealing with single-cell data. BAllCools provides an efficient way to store and retrieve data by converting these text files into binary files, thereby saving substantial storage space. **The BAllC format save >55% storage compared to AllC the format, and BAllCools accelorates BAllC operation like data merging (`ballcools merge`) ~30x.**
 
+Note: Currently, ballcools is designed to only solve the storage problem of single cell methylation data. There is no plan to add analysis functions to ballcools to replace allcools.
+
 ## Background and BAllC format
 For background of (B)AllC format and the specification of BAllC format, please check [doc/ballc_spec.pdf](https://github.com/jksr/ballcools/blob/main/doc/ballc_spec.pdf) for details.
 
@@ -76,6 +78,8 @@ This will print a help message with a summary of the subcommands and their funct
 
 ## Basic workflow
 
+![ballcools workflow](https://github.com/jksr/ballcools/assets/2994580/a205dd2e-85c0-4454-a614-c69b376d8ebc)
+
 ### Create the CMeta file
 A CMeta file stores the context and the strandness of each cytosine of a given genome.
 Although the CMeta file is not required for BAllC files and BAllCools, 
@@ -91,6 +95,14 @@ BAllC files can be created from AllC files with command ```ballcools a2b```. It 
 Another option ```--note``` can be used as well to specify more info about the genome or other meta info/notes.
 
 See ```ballcools a2b -h``` for details.
+
+### Merge BAllC files
+scBAllC files can be merged to create pseudo-bulk BAllC files with command ```ballcools merge```. This is a much faster (>30x) replacement comparing merge AllC files directly. 
+After merging, you could query the pseudo-bulk BAllC files directly.
+
+Because tools like ```allcools``` or ```methylpy``` already provides versatile functions for analyzing (pseudo)bulk AllC files, and the larger storage requirement in AllC format on bulk level data is usually tolerable,
+one can convert the merged BAllC files back to AllC files for downstream analysis.
+
 
 ### Query BAllC files
 To query a BAllC file, command ```ballcools query ``` can be used. When the corresponding CMeta file is given with the option ```--cmetapath```, information of cytosine context and strandness will be output. Otherwise, only the methylation read and total read numbers will be output.
