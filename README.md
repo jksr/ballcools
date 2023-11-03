@@ -94,6 +94,8 @@ BAllC files can be created from AllC files with command ```ballcools a2b```. It 
 
 Another option ```--note``` can be used as well to specify more info about the genome or other meta info/notes.
 
+Convert AllC to BAllC files will need a chromosome size file, which is a tab-separated-value file with 1st col as the chromomsome name and 2nd col as the chromosome length. These files can be usually downloaded accompanied when you download the genome fasta from online resources like UCSC, Refseq, etc. Eg. for hg38, see https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/.
+
 See ```ballcools a2b -h``` for details.
 
 ### Merge BAllC files
